@@ -9,8 +9,6 @@ Agent skills for installing, composing, theming, and using Starwind UI and Starw
 
 ## Install
 
-When this directory is published as the `starwind-ui/skills` repository:
-
 ```bash
 npx skills add starwind-ui/skills
 ```
