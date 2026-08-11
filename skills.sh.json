@@ -6,7 +6,7 @@
   "groups": [
     {
       "title": "Starwind",
-      "description": "Core workflows for Astro components, Pro blocks, and theme customization.",
+      "description": "Core workflows for Starwind UI components components for Astro and React, Pro blocks, and theme customization.",
       "skillIds": ["starwind-ui", "starwind-pro"]
     }
   ]
