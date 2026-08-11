@@ -1,262 +1,209 @@
 # Component Composition
 
-Compose Starwind UI from installed Astro components. Prefer documented parts and variants over handwritten markup that imitates rendered output.
+Compose from installed styled components. Local exports are authoritative for installed source;
+current docs define the latest public contract.
 
 ## Contents
 
-- Use components instead of custom markup
-- Grouped items stay inside group components
-- Toast notifications use `toast`
-- Choose the right overlay component
-- Dialog, Sheet, and AlertDialog need a title
-- Button has no `isPending` or `isLoading` prop
-- Card structure
-- Select and Combobox
-- TabsTrigger belongs inside TabsList
-- Avatar always needs AvatarFallback
-- Loading, status, and divider primitives
+- framework syntax and component reuse
+- roots, groups, and item nesting
+- Select versus standalone Combobox
+- Toast placement and imperative API
+- overlay choice and accessible titles
+- Card, loading Button, Tabs, and Avatar patterns
 
-## General Rules
+## Framework Syntax
 
-- Import from `@/components/starwind/<component-name>` unless the project alias or `starwind.config.json` says otherwise.
-- Use Astro attributes: `class`, `for`, `tabindex`, `readonly`, and plain browser scripts.
-- Read local exports before assuming part names. Starwind is Astro-first; do not copy shadcn React-only helpers into `.astro` files.
-- Preserve `data-slot` attributes and Starwind class hooks when editing installed component internals.
+- Astro: `class`, `for`, inline browser scripts, and static initial-state props.
+- React: `className`, `htmlFor`, React event handlers, and controlled props/callbacks when needed.
+- Import styled parts from the configured local component directory.
+- Import imperative APIs and detail types from the matching
+  `@starwind-ui/astro/<component>` or `@starwind-ui/react/<component>` package.
+- Preserve `data-slot` and required `data-sw-*` hooks when editing installed internals.
 
-## Use Components, Not Custom Markup
+## Prefer Existing Components
 
-| Instead of | Use |
-| --- | --- |
-| Custom callout `div` | `alert` |
-| Custom status pill/span | `badge` |
-| Raw `hr` or border-only divider | `separator` |
-| Custom loading pulse block | `skeleton` |
-| Inline spinner markup | `spinner` |
-| Hand-rolled toast stack | `toast` with one `Toaster` |
-| Generic bordered section | `card` or `item` when the structure matches |
-| Manually joined buttons | `button-group` |
+| Instead of                      | Use                        |
+| ------------------------------- | -------------------------- |
+| Custom callout                  | `alert`                    |
+| Status pill                     | `badge`                    |
+| Raw divider                     | `separator`                |
+| Loading pulse                   | `skeleton`                 |
+| Inline progress SVG             | `spinner`                  |
+| Hand-rolled notification stack  | `toast` plus one `Toaster` |
+| Generic bordered section        | `card` or `item`           |
+| Manually joined buttons         | `button-group`             |
+| Searchable Select hack          | standalone `combobox`      |
+| Handwritten navigation dropdown | `navigation-menu`          |
 
-Starwind does not currently document a standalone `empty` component. For empty states, compose semantic app markup with `Card`, `Item`, `Button`, icons, and text.
+## Keep Items Inside Groups
 
-## Grouped Items
+Use the group part when the component provides one:
 
-Use group wrappers when a component provides them.
+| Item                             | Group           |
+| -------------------------------- | --------------- |
+| `SelectItem`, label, separator   | `SelectGroup`   |
+| `ComboboxItem`, label, separator | `ComboboxGroup` |
+| `Item`                           | `ItemGroup`     |
+| `Button` cluster                 | `ButtonGroup`   |
+| `InputOtpSlot`                   | `InputOtpGroup` |
+| `Kbd` combination                | `KbdGroup`      |
+| Related Checkbox items           | `CheckboxGroup` |
+| Related Toggle items             | `ToggleGroup`   |
 
-| Items | Group |
-| --- | --- |
-| `SelectItem`, `SelectLabel`, `SelectSeparator` | `SelectGroup` |
-| `Item` | `ItemGroup` |
-| `Button` clusters | `ButtonGroup` |
-| `InputOtpSlot` | `InputOtpGroup` |
-| `Kbd` combinations | `KbdGroup` |
+Avoid loose items:
 
-For Dropdown and Context Menu grouping, labels, shortcuts, checkboxes, and submenus, confirm exact names from current docs or local exports.
+```astro
+<!-- Incorrect -->
+<SelectContent><SelectItem value="astro">Astro</SelectItem></SelectContent>
 
-## Toast Notifications
+<!-- Correct -->
+<SelectContent>
+  <SelectGroup><SelectItem value="astro">Astro</SelectItem></SelectGroup>
+</SelectContent>
+```
 
-Use Starwind's `toast` component. Add `Toaster` once in a shared layout:
+Read current exports for Dropdown, Context Menu, Navigation Menu, and submenu parts.
+
+## Select And Combobox
+
+Select is a fixed choice list. Combobox is the V3 searchable choice component. Install and use it as
+its own component:
+
+```bash
+npx starwind@latest add combobox
+```
+
+```astro
+---
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxGroup,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxLabel,
+} from "@/components/starwind/combobox";
+---
+
+<Combobox name="framework" defaultValue="astro">
+  <ComboboxLabel>Framework</ComboboxLabel>
+  <ComboboxInput id="framework" placeholder="Search frameworks" />
+  <ComboboxContent>
+    <ComboboxEmpty>No framework found.</ComboboxEmpty>
+    <ComboboxGroup>
+      <ComboboxItem value="astro">Astro</ComboboxItem>
+      <ComboboxItem value="react">React</ComboboxItem>
+    </ComboboxGroup>
+  </ComboboxContent>
+</Combobox>
+```
+
+V3 has no `SelectSearch`. Put Select form/state props such as `name`, `required`, `disabled`,
+`readOnly`, and `defaultValue` on its root. For programmatic Astro Select changes, target the
+specific root with `starwind:set-value` and listen there for `starwind:value-change`. React code
+uses documented controlled props/callbacks.
+
+## Toast
+
+Render one local styled `Toaster` in a shared application layout, not once per page or action:
 
 ```astro
 ---
 import { Toaster } from "@/components/starwind/toast";
 ---
 
-<body>
-  <slot />
-  <Toaster position="bottom-right" />
-</body>
+<slot />
+<Toaster />
 ```
 
-Trigger toasts from Astro scripts:
+Import the imperative API from the matching adapter package, not the local styled folder:
 
-```astro
----
-import { Button } from "@/components/starwind/button";
----
+```ts
+import { toast } from "@starwind-ui/astro/toast";
+// React file: import { toast } from "@starwind-ui/react/toast";
 
-<Button id="save-profile">Save profile</Button>
-
-<script>
-  import { toast } from "@/components/starwind/toast";
-
-  document.getElementById("save-profile")?.addEventListener("click", () => {
-    toast.success("Saved successfully", {
-      description: "Your profile changes are live.",
-    });
-  });
-</script>
+toast.success("Saved");
 ```
 
-Useful APIs: `toast()`, `toast.success()`, `toast.error()`, `toast.warning()`, `toast.info()`, `toast.loading()`, `toast.promise()`, `toast.update()`, and `toast.dismiss()`. `Toaster` props include `position`, `limit`, `duration`, `gap`, and `peek`.
+Confirm current `Toaster` props and toast methods from docs or package types.
 
-## Choosing Between Overlay Components
+## Overlay Choice And Accessibility
 
-| Use case | Component |
-| --- | --- |
-| Focused modal task that requires input | `dialog` |
-| Destructive or irreversible confirmation | `alert-dialog` |
-| Side panel with details, filters, or navigation | `sheet` |
-| Mobile-first bottom panel | `sheet` with `SheetContent side="bottom"` |
-| Menu of actions from a button | `dropdown` |
-| Right-click or long-press menu | `context-menu` |
-| Small contextual content opened by click | `popover` |
-| Rich preview on hover | `hover-card` |
-| Short helper text on hover/focus | `tooltip` |
-| Choosing from a list of values | `select` or `native-select` |
+| Need                       | Component      |
+| -------------------------- | -------------- |
+| Focused modal task         | `dialog`       |
+| Destructive confirmation   | `alert-dialog` |
+| Side/bottom panel          | `sheet`        |
+| Button action menu         | `dropdown`     |
+| Pointer context actions    | `context-menu` |
+| Clicked contextual content | `popover`      |
+| Rich hover preview         | `hover-card`   |
+| Short helper text          | `tooltip`      |
 
-A tooltip is not an interactive panel, a popover is not a destructive confirmation, and a dropdown is not a form select.
-
-## Dialog, Sheet, And AlertDialog Need Titles
-
-`DialogTitle`, `SheetTitle`, and `AlertDialogTitle` are required for accessible names. Use `class="sr-only"` if visually hidden.
+Dialog, Sheet, and Alert Dialog require their documented title part. Keep a title in the accessible
+tree even when the design does not show one:
 
 ```astro
----
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/starwind/dialog";
-import { Button } from "@/components/starwind/button";
----
-
-<Dialog>
-  <DialogTrigger asChild>
-    <Button>Edit profile</Button>
-  </DialogTrigger>
-  <DialogContent>
-    <DialogHeader>
-      <DialogTitle>Edit profile</DialogTitle>
-    </DialogHeader>
-    <!-- content -->
-  </DialogContent>
-</Dialog>
+<DialogContent>
+  <DialogHeader>
+    <DialogTitle class="sr-only">Edit profile</DialogTitle>
+  </DialogHeader>
+  <!-- content -->
+</DialogContent>
 ```
 
-For destructive confirmations, prefer `alert-dialog` with `AlertDialogCancel` and `AlertDialogAction`.
+External Dialog/AlertDialog triggers use `targetId`; nested triggers need no target. Dropdown
+navigation uses `DropdownLinkItem`; Context Menu remains action-only.
 
-## Button Has No isPending Or isLoading Prop
+Runtime-managed overlay presence follows actual CSS transitions and animations. Express timing in
+styles instead of an `animationDuration` prop. Preserve keyboard navigation, Escape/outside
+dismissal, nested-overlay behavior, portals, and focus return.
 
-Starwind `Button` does not document `isPending` or `isLoading`. Compose loading state with `Spinner`, `disabled`, and `aria-busy`:
+## Common Component Shapes
 
-```astro
----
-import { Button } from "@/components/starwind/button";
-import { Spinner } from "@/components/starwind/spinner";
----
-
-<Button disabled aria-busy="true">
-  <Spinner />
-  Saving...
-</Button>
-```
-
-For icon-only buttons, use documented icon sizes (`icon`, `icon-sm`, `icon-lg`) and provide an accessible name.
-
-## Card Structure
-
-Use full Card composition. Do not dump everything into `CardContent`.
+Use Card parts rather than recreating a generic bordered panel:
 
 ```astro
----
-import { Button } from "@/components/starwind/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/starwind/card";
----
-
 <Card>
   <CardHeader>
-    <CardTitle>Project settings</CardTitle>
-    <CardDescription>Manage defaults for new workspaces.</CardDescription>
-    <CardAction>
-      <Button variant="outline" size="sm">Edit</Button>
-    </CardAction>
+    <CardTitle>Workspace</CardTitle>
+    <CardDescription>Manage workspace settings.</CardDescription>
+    <CardAction><Button variant="outline">Edit</Button></CardAction>
   </CardHeader>
-  <CardContent><!-- content --></CardContent>
-  <CardFooter><!-- actions --></CardFooter>
+  <CardContent>...</CardContent>
+  <CardFooter>...</CardFooter>
 </Card>
 ```
 
-## Select And Combobox
-
-Combobox behavior is a `select` component pattern. Install `select`, then use `SelectSearch` inside `SelectContent`. Do not run `starwind add combobox`.
+Button has no assumed `isLoading` or `isPending` prop:
 
 ```astro
----
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectSearch,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/starwind/select";
----
-
-<Select name="framework">
-  <SelectTrigger>
-    <SelectValue placeholder="Select a framework" />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectSearch placeholder="Search frameworks..." emptyText="No frameworks found." />
-    <SelectGroup>
-      <SelectItem value="astro">Astro</SelectItem>
-      <SelectItem value="svelte">Svelte</SelectItem>
-    </SelectGroup>
-  </SelectContent>
-</Select>
+<Button disabled aria-busy="true"><Spinner /> Saving...</Button>
 ```
 
-Set `name` for form submission. Listen for `starwind-select:change` when client behavior needs the selected value.
-
-## TabsTrigger Must Be Inside TabsList
-
-Never render `TabsTrigger` directly inside `Tabs`; wrap triggers in `TabsList` and match values with `TabsContent`.
+Keep Tabs and Avatar anatomy complete:
 
 ```astro
----
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/starwind/tabs";
----
-
-<Tabs defaultValue="overview">
-  <TabsList>
-    <TabsTrigger value="overview">Overview</TabsTrigger>
-    <TabsTrigger value="activity">Activity</TabsTrigger>
-  </TabsList>
-  <TabsContent value="overview">Overview content</TabsContent>
-  <TabsContent value="activity">Activity content</TabsContent>
+<Tabs defaultValue="account">
+  <TabsList><TabsTrigger value="account">Account</TabsTrigger></TabsList>
+  <TabsContent value="account">...</TabsContent>
 </Tabs>
-```
-
-## Avatar Always Needs AvatarFallback
-
-```astro
----
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/starwind/avatar";
----
 
 <Avatar>
-  <AvatarImage src="/avatars/jane.jpg" alt="Jane Doe" />
-  <AvatarFallback>JD</AvatarFallback>
+  <AvatarImage src="/avatar.jpg" alt="Ada Lovelace" />
+  <AvatarFallback>AL</AvatarFallback>
 </Avatar>
 ```
 
-## Loading, Status, And Divider Primitives
+Also check:
 
-- Use `Skeleton` for loading placeholders.
-- Use `Spinner` for active progress.
-- Use `Badge` for status labels.
-- Use `Alert` for callouts.
-- Use `Separator` instead of raw `hr` or border-only dividers.
+- Give every icon-only button an accessible name.
+- Use `asChild` only where current styled or Primitive docs expose it.
+- Give Radio items and the Input OTP root explicit accessible names.
+- Use `InputGroupButton` for actions; `InputGroupAddon` is presentational.
 
-Keep examples brief in this file. For exact props, events, variants, and subcomponent names, read current Starwind docs or the installed component source before editing.
+The composition is complete when every part is nested under its documented root/group, accessible
+names and native semantics are present, and local exports plus current docs support every prop and
+event used.
