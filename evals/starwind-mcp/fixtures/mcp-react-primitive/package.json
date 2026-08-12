@@ -1,0 +1,13 @@
+{
+  "name": "mcp-react-primitive",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.20.0",
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "scripts": {
+    "mcp": "node scripts/mcp-call.mjs"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "$schema": "https://starwind.dev/config-schema.v2.json",
+  "version": 2,
+  "framework": "astro",
+  "componentDir": "src/components/starwind",
+  "utilsDir": "src/lib/utils"
+}

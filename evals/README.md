@@ -26,6 +26,11 @@ in the prompt—should be run as a separate batch so discovery and task quality 
 - CLI workflow fixtures provide an interface-compatible, offline command through the fixture's
   `pnpm starwind` script. The double reproduces the relevant file mutations and records invocation;
   it exists only because repeatable model comparisons cannot depend on live registry access.
+- MCP workflow fixtures call the actual newest published `@starwind-ui/mcp` server through
+  `pnpm mcp`. Preparation resolves and pins the current `latest` version, warms pnpm's cache, and
+  records real structured requests/responses in the ignored evidence directory, outside the agent
+  workspace. The package alone bypasses `minimumReleaseAge` for that invocation; the user's global
+  supply-chain policy is not changed.
 - Post-CLI fixtures begin with the CLI-owned configuration and generated source already in place.
   They ask agents only for application integration that the command intentionally leaves manual.
 - A case should model one recognizable user stage. Do not combine setup, installation, and content
@@ -42,10 +47,18 @@ evals/
 ├── starwind-ui/
 │   ├── cases.json
 │   └── fixtures/<case>/
-└── starwind-pro/
+├── starwind-pro/
+│   ├── cases.json
+│   └── fixtures/<case>/
+└── starwind-mcp/
     ├── cases.json
+    ├── mcp-call.mjs
     └── fixtures/<case>/
 ```
+
+MCP fixtures set `minimumReleaseAge: 2880` locally to reproduce a two-day policy. Only the pinned
+`@starwind-ui/mcp` `dlx` subprocess receives `minimum-release-age=0`; application dependencies stay
+uninstalled and the user's global pnpm configuration is untouched.
 
 `fixtures.json` pins the upstream revision used for copied installed-component source.
 
@@ -59,6 +72,12 @@ node evals/run.mjs prepare \
   --model terra-high \
   --batch pilot-001 \
   --tier static
+
+node evals/run.mjs prepare \
+  --case all \
+  --suite starwind-mcp \
+  --model terra-high \
+  --batch mcp-live-001
 ```
 
 The prepare command prints the exact context-free prompt and creates an evidence folder plus an

@@ -9,7 +9,7 @@ import process from "node:process";
 const repo = path.resolve(import.meta.dirname, "..");
 const runsRoot = path.join(repo, ".eval-runs");
 const workspacesRoot = path.join("/tmp", "starwind-skill-evals");
-const suites = ["starwind-ui", "starwind-pro"];
+const suites = ["starwind-ui", "starwind-pro", "starwind-mcp"];
 const excludedEvidenceRoots = new Set([".astro", ".skills", "dist", "node_modules"]);
 
 function usage(message) {
@@ -17,7 +17,7 @@ function usage(message) {
   console.error(
     "Usage:\n" +
     "  node evals/run.mjs list\n" +
-    "  node evals/run.mjs prepare --case <id|all> --model <label> [--batch <name>] [--surface <name>] [--tier <static|integration>]\n" +
+    "  node evals/run.mjs prepare --case <id|all> --model <label> [--suite <name>] [--batch <name>] [--surface <name>] [--tier <static|integration>]\n" +
     "  node evals/run.mjs score --run <workspace>\n" +
     "  node evals/run.mjs report --batch <name>"
   );
@@ -43,7 +43,14 @@ async function getCases() {
   const result = [];
   for (const suite of suites) {
     const data = await readJson(path.join(repo, "evals", suite, "cases.json"));
-    for (const entry of data.cases) result.push({ ...entry, suite, skill: data.skill });
+    for (const entry of data.cases) {
+      result.push({
+        ...entry,
+        suite,
+        skill: entry.skill ?? data.skill,
+        skillName: entry.skill_name ?? data.skill_name ?? suite,
+      });
+    }
   }
   return result;
 }
@@ -89,13 +96,14 @@ function runFixtureCommand(command, cwd, stdio = "pipe") {
   }
 }
 
-async function prepare(caseId, modelLabel, batch, surface, tier) {
+async function prepare(caseId, modelLabel, batch, surface, tier, suiteFilter) {
   const models = (await readJson(path.join(repo, "evals", "models.json"))).models;
   const model = models[modelLabel];
   if (!model) usage("Unknown model label: " + modelLabel);
   if (!new Set(["static", "integration"]).has(tier)) usage("Unknown validation tier: " + tier);
   const cases = await getCases();
-  const selected = caseId === "all" ? cases : cases.filter((entry) => entry.id === caseId);
+  const selected = (caseId === "all" ? cases : cases.filter((entry) => entry.id === caseId))
+    .filter((entry) => !suiteFilter || entry.suite === suiteFilter);
   if (!selected.length) usage("Unknown case: " + caseId);
 
   for (const entry of selected) {
@@ -143,7 +151,33 @@ async function prepare(caseId, modelLabel, batch, surface, tier) {
       ? " Fixture dependencies are already installed; run the available validation without changing them."
       : " Run any validation already available without downloading anything.";
 
-    const skillPath = path.join(workspace, ".skills", entry.suite);
+    let mcpPackage;
+    if (entry.mcp) {
+      const version = execFileSync("npm", ["view", "@starwind-ui/mcp@latest", "version"], {
+        cwd: workspace,
+        encoding: "utf8",
+      }).trim();
+      mcpPackage = { name: "@starwind-ui/mcp", version };
+      await mkdir(path.join(workspace, "scripts"), { recursive: true });
+      await cp(
+        path.join(repo, "evals", "starwind-mcp", "mcp-call.mjs"),
+        path.join(workspace, "scripts", "mcp-call.mjs")
+      );
+      await writeFile(
+        path.join(workspace, ".mcp-package.json"),
+        JSON.stringify({
+          ...mcpPackage,
+          auditFile: path.join(evidenceDir, "mcp-calls.json"),
+        }, null, 2) + "\n"
+      );
+      const warm = runFixtureCommand(
+        ["pnpm", "--config.minimum-release-age=0", "dlx", `@starwind-ui/mcp@${version}`],
+        workspace
+      );
+      if (!warm.passed) throw new Error("Unable to cache @starwind-ui/mcp@" + version);
+    }
+
+    const skillPath = path.join(workspace, ".skills", entry.skillName);
     await mkdir(path.dirname(skillPath), { recursive: true });
     await cp(path.join(repo, entry.skill), skillPath, {
       recursive: true,
@@ -151,10 +185,13 @@ async function prepare(caseId, modelLabel, batch, surface, tier) {
       force: false
     });
     const prompt =
-      "Use $" + entry.suite + " at " + skillPath + " to complete this request in " + workspace + ".\n\n" +
+      "Use $" + entry.skillName + " at " + skillPath + " to complete this request in " + workspace + ".\n\n" +
       entry.prompt +
-      "\n\nWork only in the project directory and the named skill directory. Do not use the network or install dependencies. " +
-      "Make the requested local changes." + validationContext + " " +
+      "\n\nWork only in the project directory and the named skill directory. Do not install dependencies. " +
+      (entry.mcp
+        ? "Use external network access only through the provided MCP command; request it if the sandbox requires approval. "
+        : "Do not use the network. ") +
+      "Complete the requested work." + validationContext + " " +
       "When finished, write the same concise handoff you would give the user to RESULT.md in the project root.";
 
     const baseline = {};
@@ -174,6 +211,7 @@ async function prepare(caseId, modelLabel, batch, surface, tier) {
       model_label: modelLabel,
       ...model,
       execution_surface: surface,
+      ...(mcpPackage ? { mcp_package: mcpPackage } : {}),
       skill_path: entry.skill,
       skill_commit: git("rev-parse", "HEAD"),
       skill_tree: git("rev-parse", "HEAD:" + entry.skill),
@@ -196,6 +234,14 @@ async function prepare(caseId, modelLabel, batch, surface, tier) {
 
 function nestedValue(value, dottedPath) {
   return dottedPath.split(".").reduce((current, key) => current?.[key], value);
+}
+
+function assertionRegExp(pattern, flags = "m") {
+  if (pattern.startsWith("(?i)")) {
+    pattern = pattern.slice(4);
+    if (!flags.includes("i")) flags += "i";
+  }
+  return new RegExp(pattern, flags);
 }
 
 function cssVariableCounts(value, except = []) {
@@ -284,12 +330,12 @@ async function sameTree(workspaceRoot, fixtureRoot, relativeRoot) {
   }
 }
 
-async function evaluate(assertion, workspace, fixtureRoot) {
+async function evaluate(assertion, workspace, fixtureRoot, evidenceDir) {
   let content = "";
   let exists = false;
   if (assertion.file) {
     try {
-      content = await readFile(path.join(workspace, assertion.file), "utf8");
+      content = await readFile(path.join(assertion.evidence ? evidenceDir : workspace, assertion.file), "utf8");
       exists = true;
     } catch {}
   }
@@ -302,12 +348,31 @@ async function evaluate(assertion, workspace, fixtureRoot) {
   } else if (assertion.type === "file_not_exists") {
     passed = !exists;
   } else if (assertion.type === "contains") {
-    passed = exists && new RegExp(assertion.pattern, assertion.flags ?? "m").test(content);
+    passed = exists && assertionRegExp(assertion.pattern, assertion.flags).test(content);
   } else if (assertion.type === "not_contains") {
-    passed = !exists || !new RegExp(assertion.pattern, assertion.flags ?? "m").test(content);
+    passed = !exists || !assertionRegExp(assertion.pattern, assertion.flags).test(content);
   } else if (assertion.type === "json_equals") {
     try {
       passed = nestedValue(JSON.parse(content), assertion.path) === assertion.value;
+    } catch {}
+  } else if (assertion.type === "json_array_some") {
+    try {
+      const values = JSON.parse(content);
+      passed = Array.isArray(values) && values.some((value) =>
+        Object.entries(assertion.matches).every(([key, expected]) =>
+          JSON.stringify(nestedValue(value, key)) === JSON.stringify(expected)
+        )
+      );
+    } catch {}
+  } else if (assertion.type === "mcp_server_version") {
+    try {
+      const calls = JSON.parse(content);
+      const pinned = JSON.parse(await readFile(path.join(workspace, assertion.package_file), "utf8"));
+      passed = Array.isArray(calls) && calls.length > 0 && calls.every((call) =>
+        call.packageSpec === `${pinned.name}@${pinned.version}` &&
+        call.serverInfo?.name === pinned.name &&
+        call.serverInfo?.version === pinned.version
+      );
     } catch {}
   } else if (assertion.type === "css_variables_preserved") {
     try {
@@ -361,7 +426,7 @@ async function score(runArg) {
   const fixtureRoot = path.join(repo, "evals", entry.suite, "fixtures", entry.fixture);
   const results = [];
   for (const assertion of entry.assertions) {
-    results.push(await evaluate(assertion, workspace, fixtureRoot));
+    results.push(await evaluate(assertion, workspace, fixtureRoot, evidenceDir));
   }
   results.push(await evaluate({
     type: "non_empty_file",
@@ -369,7 +434,7 @@ async function score(runArg) {
     description: "Writes a non-empty user handoff",
     weight: 1,
     hard: true
-  }, workspace, fixtureRoot));
+  }, workspace, fixtureRoot, evidenceDir));
   const integration = [];
   if (metadata.validation_tier === "integration") {
     for (const command of entry.integration?.commands ?? []) {
@@ -491,7 +556,8 @@ if (command === "list") {
     options.model,
     options.batch ?? new Date().toISOString().replace(/[:.]/g, "-"),
     options.surface ?? "unrecorded",
-    options.tier ?? "static"
+    options.tier ?? "static",
+    options.suite
   );
 } else if (command === "score") {
   if (!options.run) usage("score requires --run");

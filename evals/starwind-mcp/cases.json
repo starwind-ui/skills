@@ -1,0 +1,255 @@
+{
+  "skill": "skills/starwind-ui",
+  "skill_name": "starwind-ui",
+  "cases": [
+    {
+      "id": "mcp-migration-preview",
+      "title": "Preview a legacy migration through the real MCP",
+      "fixture": "mcp-migration-preview",
+      "mcp": true,
+      "prompt": "I want to upgrade this legacy Astro Starwind project to V3, but this is a planning pass: do not run the generated migration command or change project files. Use the prepared real Starwind MCP (`pnpm mcp -- list` shows its tools) to inspect the project and obtain the appropriate migration guidance. Keep the migration interactive, then explain the exact command, safety prerequisites, and what must be reviewed afterward.",
+      "assertions": [
+        {
+          "type": "mcp_server_version",
+          "file": "mcp-calls.json",
+          "evidence": true,
+          "package_file": ".mcp-package.json",
+          "description": "Calls the pinned newest published MCP server",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "json_array_some",
+          "file": "mcp-calls.json",
+          "evidence": true,
+          "matches": { "tool": "starwind_migrate" },
+          "description": "Uses the dedicated MCP migration tool",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
+          "file": "mcp-calls.json",
+          "evidence": true,
+          "pattern": "\\\"yes\\\"\\s*:\\s*true",
+          "description": "Keeps migration interactive instead of authorizing overwrite",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "RESULT.md",
+          "pattern": "pnpm dlx starwind@latest migrate",
+          "description": "Reports the generated migration command",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "RESULT.md",
+          "pattern": "(?i)(clean|recoverable).*(working tree|git)|(working tree|git).*(clean|recoverable)",
+          "description": "Reports the recoverable working-tree prerequisite",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "RESULT.md",
+          "pattern": "(?i)(starwind-legacy|source:\\s*legacy|browser)",
+          "description": "Calls out post-migration review beyond command success",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "file_unchanged",
+          "file": "starwind.config.json",
+          "description": "Does not manually rewrite the legacy config",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "tree_unchanged",
+          "path": "src",
+          "description": "Does not run the generated migration command",
+          "weight": 3,
+          "hard": true
+        }
+      ],
+      "scenario_type": "mcp-workflow",
+      "integration": {
+        "install": false,
+        "commands": [["node", "--check", "scripts/mcp-call.mjs"]]
+      }
+    },
+    {
+      "id": "mcp-react-primitive",
+      "title": "Discover and prepare a React Primitive install",
+      "fixture": "mcp-react-primitive",
+      "mcp": true,
+      "prompt": "This React project needs an editable Combobox Primitive vendored into src/primitives. Use the prepared real Starwind MCP (`pnpm mcp -- list` shows its tools) to verify that the Primitive supports React and obtain the exact pnpm install command for that destination. This is an approval pass, so report the command but do not execute it or modify project files.",
+      "assertions": [
+        {
+          "type": "mcp_server_version",
+          "file": "mcp-calls.json",
+          "evidence": true,
+          "package_file": ".mcp-package.json",
+          "description": "Calls the pinned newest published MCP server",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "json_array_some",
+          "file": "mcp-calls.json",
+          "evidence": true,
+          "matches": {
+            "tool": "starwind_search",
+            "input.query": "combobox",
+            "input.surface": "primitive",
+            "input.framework": "react"
+          },
+          "description": "Searches the React Primitive surface explicitly",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "json_array_some",
+          "file": "mcp-calls.json",
+          "evidence": true,
+          "matches": {
+            "tool": "starwind_add",
+            "input.components": ["combobox"],
+            "input.surface": "primitive",
+            "input.framework": "react",
+            "input.to": "src/primitives"
+          },
+          "description": "Requests the exact vendored Primitive command",
+          "weight": 4,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "RESULT.md",
+          "pattern": "pnpm dlx starwind@latest primitives add combobox --yes --framework react --to src/primitives --package-manager pnpm",
+          "description": "Reports the generated Primitive command intact",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "file_unchanged",
+          "file": "starwind.config.json",
+          "description": "Does not edit config during the approval pass",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "tree_unchanged",
+          "path": "src",
+          "description": "Does not run the generated install command",
+          "weight": 2,
+          "hard": true
+        }
+      ],
+      "scenario_type": "mcp-workflow",
+      "integration": {
+        "install": false,
+        "commands": [["node", "--check", "scripts/mcp-call.mjs"]]
+      }
+    },
+    {
+      "id": "mcp-pro-result-routing",
+      "title": "Distinguish free and paid Pro results",
+      "fixture": "mcp-pro-result-routing",
+      "skill": "skills/starwind-pro",
+      "skill_name": "starwind-pro",
+      "mcp": true,
+      "prompt": "Compare one current free hero block with one paid pricing block for this Astro project. Use the prepared real Starwind MCP (`pnpm mcp -- list` shows its tools), limiting each search to the requested plan. Do not install or configure anything. Tell me which command is ready now, which command must remain deferred, and the safe setup step required before the paid install.",
+      "assertions": [
+        {
+          "type": "mcp_server_version",
+          "file": "mcp-calls.json",
+          "evidence": true,
+          "package_file": ".mcp-package.json",
+          "description": "Calls the pinned newest published MCP server",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "json_array_some",
+          "file": "mcp-calls.json",
+          "evidence": true,
+          "matches": {
+            "tool": "starwind_search",
+            "input.framework": "astro",
+            "input.plan": "free"
+          },
+          "description": "Searches free Astro results explicitly",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "json_array_some",
+          "file": "mcp-calls.json",
+          "evidence": true,
+          "matches": {
+            "tool": "starwind_search",
+            "input.framework": "astro",
+            "input.plan": "pro"
+          },
+          "description": "Searches paid Astro results explicitly",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "RESULT.md",
+          "pattern": "npx starwind@latest add @starwind-pro/hero-01 button --yes",
+          "description": "Reports the free installCommand",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "RESULT.md",
+          "pattern": "npx starwind@latest add @starwind-pro/pricing-02 badge button card switch --yes",
+          "description": "Preserves the paid deferredInstallCommand and dependencies",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "RESULT.md",
+          "pattern": "npx starwind@latest setup --yes",
+          "description": "Reports the required Pro setup command",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "RESULT.md",
+          "pattern": "STARWIND_LICENSE_KEY",
+          "description": "Names the safe license environment variable",
+          "weight": 1
+        },
+        {
+          "type": "not_contains",
+          "file": "RESULT.md",
+          "pattern": "sw_(live|test)_[A-Za-z0-9]+",
+          "description": "Does not invent or expose a license secret",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "file_unchanged",
+          "file": "starwind.config.json",
+          "description": "Does not configure Pro during comparison",
+          "weight": 2,
+          "hard": true
+        }
+      ],
+      "scenario_type": "mcp-workflow",
+      "integration": {
+        "install": false,
+        "commands": [["node", "--check", "scripts/mcp-call.mjs"]]
+      }
+    }
+  ]
+}
