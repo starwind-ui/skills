@@ -4,3 +4,4 @@ docs
 .agents
 AGENTS.md
 skills-lock.json
+.eval-runs/

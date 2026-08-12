@@ -1,0 +1,35 @@
+---
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectSearch,
+  SelectTrigger,
+} from "@/components/starwind/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/starwind/dialog";
+import { Switch } from "@/components/starwind/switch";
+---
+
+<Dialog id="profile-dialog">
+  <DialogTrigger for="profile-dialog">Edit profile</DialogTrigger>
+  <DialogContent animationDuration={200}>
+    <DialogTitle>Edit profile</DialogTitle>
+    <p>Profile form</p>
+  </DialogContent>
+</Dialog>
+
+<Select name="timezone" defaultValue="utc">
+  <SelectTrigger>Timezone</SelectTrigger>
+  <SelectSearch placeholder="Search timezones" />
+  <SelectContent>
+    <SelectItem value="utc">UTC</SelectItem>
+    <SelectItem value="america-new-york">America/New_York</SelectItem>
+  </SelectContent>
+</Select>
+
+<Switch name="weekly-summary" checked />

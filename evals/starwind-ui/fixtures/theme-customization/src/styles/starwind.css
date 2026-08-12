@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --radius-lg: var(--radius);
+}
+
+:root {
+  --background: var(--color-white);
+  --foreground: var(--color-neutral-950);
+  --primary: var(--color-blue-700);
+  --primary-foreground: var(--color-white);
+  --primary-accent: var(--color-blue-800);
+  --muted: var(--color-neutral-100);
+  --muted-foreground: var(--color-neutral-600);
+  --border: var(--color-neutral-200);
+  --sidebar: var(--color-neutral-100);
+  --chart-1: var(--color-blue-500);
+  --radius: 0.5rem;
+  --sw-dialog-duration: 180ms;
+}
+
+.dark {
+  --background: var(--color-neutral-950);
+  --foreground: var(--color-neutral-50);
+  --primary: var(--color-blue-500);
+  --primary-foreground: var(--color-neutral-950);
+  --primary-accent: var(--color-blue-300);
+  --muted: var(--color-neutral-800);
+  --muted-foreground: var(--color-neutral-400);
+  --border: var(--color-neutral-800);
+  --sidebar: var(--color-neutral-900);
+  --chart-1: var(--color-blue-400);
+}
+
+@keyframes accordion-down {
+  from { height: 0; }
+  to { height: var(--sw-accordion-content-height); }
+}

@@ -1,0 +1,24 @@
+---
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{title}</title>
+    <script is:inline>
+      const saved = localStorage.getItem("theme");
+      document.documentElement.classList.toggle("dark", saved === "dark");
+    </script>
+  </head>
+  <body><slot /></body>
+</html>
+
+<script>
+  document.addEventListener("theme:change", (event) => {
+    console.info("theme changed", event);
+  });
+</script>

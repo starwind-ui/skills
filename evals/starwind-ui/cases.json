@@ -1,0 +1,605 @@
+{
+  "skill": "skills/starwind-ui",
+  "cases": [
+    {
+      "id": "astro-settings-form",
+      "title": "Compose an accessible Astro settings form",
+      "fixture": "astro-settings-form",
+      "prompt": "Build the account settings page in src/pages/settings.astro. It needs required full-name and email fields with native validation messages, three independently named email/SMS/push values in the same account settings form, and a Save button that enters the documented disabled, busy Spinner state after a valid submit. Use the installed local Starwind components and keep it server-rendered Astro; a small browser script for the submit-state demonstration is fine.",
+      "assertions": [
+        {
+          "type": "contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "Field(Label|Control|Error|Group)",
+          "description": "Uses Starwind Field anatomy",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "<Field\\s[^>]*name=",
+          "description": "Keeps native form names on the Field root",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "(gap-|\\bgap\\s*:)",
+          "description": "Uses gap for layout spacing",
+          "weight": 1
+        },
+        {
+          "type": "not_contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "space-[xy]-",
+          "description": "Avoids space-x/space-y spacing",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "required",
+          "description": "Uses native required validation",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "<FieldError[^>]+(match=|messageSource=[\\\"']validation[\\\"'])",
+          "description": "Associates native validation messages",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "<Switch\\b",
+          "description": "Uses Switch for independent preferences",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "aria-busy",
+          "description": "Uses accessible loading state",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "<Spinner",
+          "description": "Composes Spinner instead of inventing a loading prop",
+          "weight": 1
+        },
+        {
+          "type": "not_contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "(isLoading|isPending)=",
+          "description": "Does not assume unsupported Button loading props",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "className=|htmlFor=",
+          "description": "Uses Astro rather than React attribute syntax",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "addEventListener\\([^)]*submit",
+          "description": "Transitions to loading in response to form submission",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "disabled",
+          "description": "Disables Save while showing its busy state",
+          "weight": 1
+        },
+        {
+          "type": "not_contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "Switch(Control|Label)",
+          "description": "Uses the current single-component Astro Switch export",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "control_names",
+          "file": "src/pages/settings.astro",
+          "component": "Switch",
+          "names": [
+            "email",
+            "sms",
+            "push"
+          ],
+          "description": "Submits distinct email, SMS, and push values",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "no_nested_tag",
+          "file": "src/pages/settings.astro",
+          "tag": "form",
+          "description": "Keeps one valid account form without nested forms",
+          "weight": 3,
+          "hard": true
+        }
+      ],
+      "scenario_type": "implementation",
+      "integration": {
+        "install": true,
+        "commands": [
+          [
+            "pnpm",
+            "run",
+            "integration"
+          ]
+        ],
+        "browser": true
+      }
+    },
+    {
+      "id": "react-profile-combobox",
+      "title": "Build a React profile Dialog with standalone Combobox",
+      "fixture": "react-profile-combobox",
+      "prompt": "Implement src/ProfileEditor.tsx as an edit-profile dialog. Include the user's avatar, required name, bio, a searchable timezone choice, and Cancel/Save actions. Use the existing React Starwind exports, keep the component accessible, and do not add packages.",
+      "assertions": [
+        {
+          "type": "contains",
+          "file": "src/ProfileEditor.tsx",
+          "pattern": "DialogTitle",
+          "description": "Includes an accessible Dialog title",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/ProfileEditor.tsx",
+          "pattern": "AvatarFallback",
+          "description": "Pairs Avatar image with a fallback",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/ProfileEditor.tsx",
+          "pattern": "Combobox(Input|Content|Item)",
+          "description": "Uses standalone V3 Combobox for searchable choice",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
+          "file": "src/ProfileEditor.tsx",
+          "pattern": "SelectSearch",
+          "description": "Does not use removed SelectSearch",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/ProfileEditor.tsx",
+          "pattern": "className=",
+          "description": "Uses React className syntax",
+          "weight": 1
+        },
+        {
+          "type": "not_contains",
+          "file": "src/ProfileEditor.tsx",
+          "pattern": "\\sclass=",
+          "description": "Does not use Astro class syntax in TSX",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/ProfileEditor.tsx",
+          "pattern": "name=",
+          "description": "Preserves native form participation",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/ProfileEditor.tsx",
+          "pattern": "required",
+          "description": "Marks required profile input",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/ProfileEditor.tsx",
+          "pattern": "(DialogClose|setOpen\\(false\\))",
+          "description": "Makes the Cancel action actually close the dialog",
+          "weight": 2,
+          "hard": true
+        }
+      ],
+      "scenario_type": "implementation",
+      "integration": {
+        "install": true,
+        "commands": [
+          [
+            "pnpm",
+            "run",
+            "build"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "theme-customization",
+      "title": "Customize semantic tokens without deleting the theme",
+      "fixture": "theme-customization",
+      "prompt": "Rebrand this Astro project in the active Starwind CSS file: use violet for primary actions, set the global radius seed to 0.75rem, and add a reusable brand/brand-foreground semantic color in both light and dark modes. Ensure the theme initializes before paint in the shared layout. Preserve unrelated tokens, animations, and component variables.",
+      "assertions": [
+        {
+          "type": "contains",
+          "file": "src/styles/starwind.css",
+          "pattern": "--primary:\\s*var\\(--color-violet-",
+          "description": "Changes primary to violet semantically",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/styles/starwind.css",
+          "pattern": "--radius:\\s*0\\.75rem",
+          "description": "Changes the global radius seed",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/styles/starwind.css",
+          "pattern": "--color-brand:\\s*var\\(--brand\\)",
+          "description": "Registers brand with Tailwind theme mapping",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/styles/starwind.css",
+          "pattern": "--color-brand-foreground:\\s*var\\(--brand-foreground\\)",
+          "description": "Registers brand foreground mapping",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/styles/starwind.css",
+          "pattern": ":root[\\s\\S]*--brand:[\\s\\S]*--brand-foreground:",
+          "description": "Defines light brand pair",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/styles/starwind.css",
+          "pattern": "\\.dark[\\s\\S]*--brand:[\\s\\S]*--brand-foreground:",
+          "description": "Defines dark brand pair",
+          "weight": 1
+        },
+        {
+          "type": "css_variables_preserved",
+          "file": "src/styles/starwind.css",
+          "description": "Preserves every unrelated CSS custom property",
+          "weight": 3,
+          "hard": true,
+          "mutable": [
+            "--primary",
+            "--primary-accent",
+            "--radius"
+          ]
+        },
+        {
+          "type": "contains",
+          "file": "src/layouts/Layout.astro",
+          "pattern": "@starwind-ui/astro/theme",
+          "description": "Imports the V3 Astro theme adapter",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/layouts/Layout.astro",
+          "pattern": "<ThemeInitScript\\s*/>",
+          "description": "Renders ThemeInitScript in the document",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
+          "file": "src/layouts/Layout.astro",
+          "pattern": "localStorage|getItem\\(\\\"theme",
+          "description": "Does not add a competing inline theme controller",
+          "weight": 1
+        },
+        {
+          "type": "preserves",
+          "file": "src/styles/starwind.css",
+          "patterns": [
+            "@keyframes accordion-down"
+          ],
+          "description": "Preserves existing animation definitions",
+          "weight": 1,
+          "hard": true
+        }
+      ],
+      "scenario_type": "customization",
+      "integration": {
+        "install": true,
+        "commands": [
+          [
+            "pnpm",
+            "run",
+            "build"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "astro-v3-post-migration",
+      "title": "Finish application integration after the V3 migration command",
+      "fixture": "astro-v3-post-migration",
+      "prompt": "The Starwind migration command has completed successfully in this Astro project. Finish the application-integration work it deliberately leaves manual: update the shared layout and preferences page from legacy APIs to current V3 contracts while preserving behavior. The CLI-owned config and generated component source are already current; do not rerun the CLI or install anything.",
+      "assertions": [
+        {
+          "type": "json_equals",
+          "file": "starwind.config.json",
+          "path": "version",
+          "value": 2,
+          "description": "Keeps config format at version 2",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "json_equals",
+          "file": "starwind.config.json",
+          "path": "framework",
+          "value": "astro",
+          "description": "Preserves the CLI-written Astro framework",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/layouts/Layout.astro",
+          "pattern": "ThemeInitScript",
+          "description": "Replaces inline theme helper with ThemeInitScript",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/layouts/Layout.astro",
+          "pattern": "starwind:theme-change",
+          "description": "Uses the V3 theme event",
+          "weight": 1
+        },
+        {
+          "type": "not_contains",
+          "file": "src/layouts/Layout.astro",
+          "pattern": "localStorage|getItem\\(\\\"theme|addEventListener\\(\\\"theme:change",
+          "description": "Removes legacy theme controller/listener",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/preferences.astro",
+          "pattern": "Combobox",
+          "description": "Replaces SelectSearch with standalone Combobox",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
+          "file": "src/pages/preferences.astro",
+          "pattern": "SelectSearch|animationDuration|\\sfor=\\\"profile-dialog\\\"|checked=",
+          "description": "Removes legacy component APIs",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/preferences.astro",
+          "pattern": "<Dialog[^>]*>[\\s\\S]*<DialogTrigger",
+          "description": "Keeps the trigger nested under its Dialog root",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/preferences.astro",
+          "pattern": "defaultChecked",
+          "description": "Uses Astro initial-state prop",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/preferences.astro",
+          "pattern": "ComboboxLabel",
+          "description": "Gives the timezone Combobox an accessible label",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/preferences.astro",
+          "pattern": "<ComboboxGroup[\\s\\S]*<ComboboxItem",
+          "description": "Groups the timezone Combobox items",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/preferences.astro",
+          "pattern": "<Switch[^>]*(label=|aria-label=)",
+          "description": "Gives the migrated Switch an accessible name",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "file_unchanged",
+          "file": "starwind.config.json",
+          "description": "Does not rewrite CLI-owned configuration",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "tree_unchanged",
+          "path": "src/components/starwind",
+          "description": "Does not rewrite current generated components",
+          "weight": 3,
+          "hard": true
+        }
+      ],
+      "scenario_type": "post-cli-integration",
+      "integration": {
+        "install": true,
+        "commands": [
+          [
+            "pnpm",
+            "run",
+            "integration"
+          ]
+        ],
+        "browser": true
+      }
+    },
+    {
+      "id": "astro-v3-migration-cli",
+      "title": "Run and review the V3 migration command",
+      "fixture": "astro-v3-migration-cli",
+      "prompt": "Migrate this legacy Astro Starwind project to V3. The real registry is intentionally offline, so this fixture exposes a cached interface-compatible Starwind CLI through its pnpm starwind script. Use the migration command noninteractively with pnpm as the package manager, review the resulting migration summary and project changes, and report any legacy or custom components that still need human attention. Do not install packages or use the network.",
+      "assertions": [
+        {
+          "type": "json_equals",
+          "file": ".starwind-cli-run.json",
+          "path": "command",
+          "value": "migrate",
+          "description": "Runs the migration command instead of imitating it manually",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "json_equals",
+          "file": ".starwind-cli-run.json",
+          "path": "yes",
+          "value": true,
+          "description": "Uses a noninteractive migration in the isolated fixture",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "json_equals",
+          "file": ".starwind-cli-run.json",
+          "path": "package_manager",
+          "value": "pnpm",
+          "description": "Passes the project package manager explicitly",
+          "weight": 1
+        },
+        {
+          "type": "json_equals",
+          "file": "starwind.config.json",
+          "path": "version",
+          "value": 2,
+          "description": "Lets the CLI update the config format to version 2",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "json_equals",
+          "file": "starwind.config.json",
+          "path": "framework",
+          "value": "astro",
+          "description": "Lets the CLI record the Astro framework",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "json_equals",
+          "file": "starwind.config.json",
+          "path": "registry.source",
+          "value": "bundled",
+          "description": "Uses the V3 bundled registry configuration",
+          "weight": 1
+        },
+        {
+          "type": "file_exists",
+          "file": "src/components/starwind-legacy/old-menu/OldMenu.astro",
+          "description": "Keeps the CLI-created legacy backup",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "file_exists",
+          "file": "src/components/starwind/brand-banner/BrandBanner.astro",
+          "description": "Leaves custom component folders untouched",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/index.astro",
+          "pattern": "starwind/menu[\\s\\S]*<Menu",
+          "description": "Accepts the CLI public-rename codemod",
+          "weight": 1
+        },
+        {
+          "type": "not_contains",
+          "file": "src/pages/index.astro",
+          "pattern": "old-menu|OldMenu",
+          "description": "Removes the codemodded public rename",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "starwind.config.json",
+          "pattern": "legacy-chart[\\s\\S]*\\\"source\\\": \\\"legacy\\\"|\\\"source\\\": \\\"legacy\\\"[\\s\\S]*legacy-chart",
+          "description": "Keeps an unresolved component explicitly marked legacy",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "RESULT.md",
+          "pattern": "legacy-chart",
+          "description": "Reports the unresolved legacy component to the user",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "RESULT.md",
+          "pattern": "brand-banner",
+          "description": "Reports the custom component left untouched",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "RESULT.md",
+          "pattern": "starwind-legacy",
+          "description": "Reports where the backup was created",
+          "weight": 1
+        }
+      ],
+      "scenario_type": "cli-workflow",
+      "integration": {
+        "install": false,
+        "commands": [
+          [
+            "node",
+            "--check",
+            "scripts/starwind.mjs"
+          ]
+        ]
+      }
+    }
+  ]
+}
