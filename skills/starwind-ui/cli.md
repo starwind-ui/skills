@@ -1,274 +1,261 @@
-# Starwind CLI Reference
+# Starwind CLI v3 Reference
 
-Starwind project configuration is read from `starwind.config.json`. Starwind Pro setup may also configure registry details in `components.json`.
-
-> **IMPORTANT:** Run commands from the user's project root. Examples below use `npx starwind@latest`, but substitute the project's package runner when it is clear: `npx starwind@latest`, `pnpx starwind@latest` / `pnpm dlx starwind@latest`, or `yarn dlx starwind@latest`.
-
-> **IMPORTANT:** Only use the flags documented below. Do not borrow shadcn CLI flags or invent any other flags unless they are listed here.
-
-## Contents
-
-- Commands: `init`, `add`, `update`, `search`, `docs`, `setup`, `remove`
-- Package runners and package-manager flags
-- Missing shadcn CLI features
-
----
-
-## Commands
-
-### `init` - Initialize Starwind UI
-
-```bash
-npx starwind@latest init [options]
-```
-
-Initializes project configuration, creates `starwind.config.json`, installs dependencies, sets up the Tailwind CSS file, configures aliases, updates Astro configuration, and adds the CSS import to the layout when possible.
-
-| Flag         | Short | Description                        | Default |
-| ------------ | ----- | ---------------------------------- | ------- |
-| `--defaults` | `-d`  | Use default values for all prompts | `false` |
-| `--pro`      | `-p`  | Initialize with Starwind Pro setup | `false` |
-| `--help`     | `-h`  | Display help                       | -       |
-
-Examples:
-
-```bash
-npx starwind@latest init
-npx starwind@latest init --defaults
-npx starwind@latest init --pro
-```
-
-Notes:
-
-- Use `init` before adding components in a project that has not been configured for Starwind.
-- `init` prompts for component directory, Tailwind CSS file location, base color, package manager, and dependency installation unless `--defaults` is used.
-- Use `init --pro` for a new project that should support Starwind Pro from the start.
-
-### `add` - Add components or Pro blocks
-
-```bash
-npx starwind@latest add [components...] [options]
-```
-
-Adds Starwind components to the project. If no components are provided, the CLI opens an interactive component picker.
-
-| Argument        | Description                                         |
-| --------------- | --------------------------------------------------- |
-| `components...` | Component names or Pro block names, space separated |
-
-| Flag                     | Short | Description                                      | Default           |
-| ------------------------ | ----- | ------------------------------------------------ | ----------------- |
-| `--all`                  | `-a`  | Add all available components                     | `false`           |
-| `--yes`                  | `-y`  | Skip confirmation prompts                        | `false`           |
-| `--package-manager <pm>` | `-m`  | Package manager to use: `npm`, `pnpm`, or `yarn` | detected/prompted |
-| `--help`                 | `-h`  | Display help                                     | -                 |
-
-Examples:
-
-```bash
-npx starwind@latest add button
-npx starwind@latest add button card select
-npx starwind@latest add --all
-npx starwind@latest add button --yes
-npx starwind@latest add button --package-manager pnpm
-npx starwind@latest add @starwind-pro/hero-01 button
-```
-
-Rules:
-
-- Component names are registry names, such as `button`, `card`, `select`, `input-group`, `kbd`, and `theme-toggle`.
-- `combobox` is not an installable component. Use `select` with `SelectSearch`.
-- The CLI resolves Starwind component dependencies and shared file dependencies.
-- After adding, read the added files before using them. Verify imports, exports, Astro syntax, icon imports, and initialized scripts.
-- Use the exact Pro block install command returned by `search`, MCP, manifest, or current docs. Do not remove dependencies from returned commands.
-
-### `update` - Update installed components
-
-```bash
-npx starwind@latest update [components...] [options]
-```
-
-Updates Starwind components to their latest versions.
-
-> **CAUTION:** `update` overwrites local component changes.
-
-If no components are provided, the CLI opens an interactive picker for installed components.
-
-| Argument        | Description                           |
-| --------------- | ------------------------------------- |
-| `components...` | Components to update, space separated |
-
-| Flag                     | Short | Description                                      | Default           |
-| ------------------------ | ----- | ------------------------------------------------ | ----------------- |
-| `--all`                  | `-a`  | Update all installed components                  | `false`           |
-| `--yes`                  | `-y`  | Skip confirmation prompts                        | `false`           |
-| `--package-manager <pm>` | `-m`  | Package manager to use: `npm`, `pnpm`, or `yarn` | detected/prompted |
-| `--help`                 | `-h`  | Display help                                     | -                 |
-
-Examples:
-
-```bash
-npx starwind@latest update button
-npx starwind@latest update button card --yes
-npx starwind@latest update --all
-```
-
-Rules:
-
-- Only update when the user asks for an update or accepts overwrite risk.
-- Check whether the component has local edits before updating.
-- Use `--all` only when the user explicitly wants all components updated.
-- Starwind does not document `--dry-run`, `--diff`, or `--view`; do not invent preview commands. For review, inspect local files and current docs/source manually.
-
-### `search` - Search components and Pro blocks
-
-```bash
-npx starwind@latest search [query] [options]
-```
-
-Searches Starwind components and Starwind Pro blocks. Use this when a component or block name is uncertain.
-
-| Argument | Description         |
-| -------- | ------------------- |
-| `query`  | Search query string |
-
-| Flag                    | Short | Description                                | Default |
-| ----------------------- | ----- | ------------------------------------------ | ------- |
-| `--plan <plan>`         | `-p`  | Filter Pro blocks by plan: `free` or `pro` | -       |
-| `--category <category>` | `-c`  | Filter Pro blocks by category              | -       |
-| `--limit <number>`      | `-l`  | Maximum number of Pro blocks to display    | `"20"`  |
-| `--offset <number>`     | `-o`  | Offset for paginating Pro block results    | `"0"`   |
-| `--json`                | -     | Output as JSON                             | `false` |
-| `--help`                | `-h`  | Display help                               | -       |
-
-Examples:
-
-```bash
-npx starwind@latest search select
-npx starwind@latest search hero --json
-npx starwind@latest search pricing --plan free --category pricing --limit 10 --json
-```
-
-Rules:
-
-- Use `--json` when another tool or script needs structured results.
-- Plan and category filters are mainly for Pro block searches.
-- Search results for Pro blocks can include exact install commands. Use them as returned.
-- Pro blocks may require `npx starwind@latest setup` before installation.
-
-### `docs` - Get component documentation references
-
-```bash
-npx starwind@latest docs [components...] [options]
-```
-
-Returns documentation references for one or more components. Fetch the referenced docs or Markdown content before implementing props, events, or composition.
-
-| Argument        | Description                            |
-| --------------- | -------------------------------------- |
-| `components...` | Components to look up, space separated |
-
-| Flag     | Short | Description    | Default |
-| -------- | ----- | -------------- | ------- |
-| `--json` | -     | Output as JSON | `false` |
-| `--help` | `-h`  | Display help   | -       |
-
-Examples:
-
-```bash
-npx starwind@latest docs button
-npx starwind@latest docs button card --json
-```
-
-Rules:
-
-- Use this to confirm component names and docs URLs.
-- Do not stop at a URL list. Read the docs content before coding.
-- Prefer the docs page's linked Markdown alternate when raw documentation is needed.
-
-### `setup` - Configure Starwind Pro
-
-```bash
-npx starwind@latest setup [options]
-```
-
-Sets up Starwind Pro in an already initialized Starwind UI project.
-
-| Flag                     | Short | Description                                      | Default           |
-| ------------------------ | ----- | ------------------------------------------------ | ----------------- |
-| `--yes`                  | `-y`  | Skip confirmation prompts                        | `false`           |
-| `--package-manager <pm>` | `-m`  | Package manager to use: `npm`, `pnpm`, or `yarn` | detected/prompted |
-| `--pro`                  | `-p`  | Setup Starwind Pro                               | `true`            |
-| `--help`                 | `-h`  | Display help                                     | -                 |
-
-Examples:
-
-```bash
-npx starwind@latest setup
-npx starwind@latest setup --yes
-npx starwind@latest setup --package-manager pnpm
-```
-
-Rules:
-
-- Use `setup` for existing Starwind UI projects that need Pro block support.
-- Do not place license secrets in source files.
-- Setup may create `.env.local`, update `.gitignore`, and configure Pro registry details.
-- If `.env.local` is created, confirm it is ignored by git.
-
-### `remove` - Remove components
-
-```bash
-npx starwind@latest remove [components...] [options]
-```
-
-Removes Starwind components from the project. If no components are provided, the CLI opens an interactive picker.
-
-| Argument        | Description                           |
-| --------------- | ------------------------------------- |
-| `components...` | Components to remove, space separated |
-
-| Flag     | Short | Description                     | Default |
-| -------- | ----- | ------------------------------- | ------- |
-| `--all`  | `-a`  | Remove all installed components | `false` |
-| `--help` | `-h`  | Display help                    | -       |
-
-Examples:
-
-```bash
-npx starwind@latest remove button
-npx starwind@latest remove button card
-npx starwind@latest remove --all
-```
-
-Rules:
-
-- Remove only components that are no longer imported.
-- Search local imports before removing.
-- Use `--all` only when the user explicitly wants to remove every installed component.
-
----
-
-## Package Runners
+Run commands from the project root. Examples use `npx starwind@latest`; use the runner established by
+the project's package manager.
 
 | Package manager | Runner                                               |
 | --------------- | ---------------------------------------------------- |
 | npm             | `npx starwind@latest`                                |
-| pnpm            | `pnpx starwind@latest` or `pnpm dlx starwind@latest` |
-| yarn            | `yarn dlx starwind@latest`                           |
+| pnpm            | `pnpm dlx starwind@latest` or `pnpx starwind@latest` |
+| Yarn            | `yarn dlx starwind@latest`                           |
 
-Use the package manager indicated by `package.json`, lockfiles, or user instruction. For commands that document `--package-manager`, pass `npm`, `pnpm`, or `yarn` only when the local choice is clear or package-manager detection needs help.
+The public framework targets are `astro` and `react`. `all` is accepted only by commands that
+explicitly document it. Vue and Svelte are not public CLI targets.
 
-## Missing shadcn CLI Features
+## Contents
 
-Starwind's CLI is intentionally smaller than shadcn's. Do not use these shadcn commands or flags unless Starwind documents them later:
+- `init` and legacy migration
+- styled `add`, `update`, and `remove`
+- framework targeting
+- vendored `primitives add`, `update`, and `list`
+- component and Pro `search`
+- documentation lookup
+- Pro setup
+- registry and command boundaries
 
-- Commands: `apply`, `view`, `info`, `build`, `create`, `list`, `diff`
-- Flags: `--cwd`, `--silent`, `--path`, `--overwrite`, `--force`, `--dry-run`, `--diff`, `--view`, `--template`, `--preset`, `--name`, `--reinstall`, `--monorepo`, `--no-monorepo`
-- Concepts: shadcn templates, shadcn presets, shadcn smart merge, registry item URLs or local registry paths accepted by `add`
+## `init`
 
-Fallbacks:
+Creates the current `starwind.config.json`, selects Astro or React, installs the matching adapter,
+creates Starwind CSS, and configures project integration and aliases.
 
-- For project info, read `package.json`, lockfiles, Astro config, `starwind.config.json`, the Starwind CSS file, and installed component source.
-- For docs, use Starwind MCP, `npx starwind@latest docs <component> --json`, Starwind Markdown docs, and local installed source.
-- For update previews, inspect local component files and current docs/source manually; do not claim the CLI can show a dry-run or diff.
+```bash
+npx starwind@latest init
+npx starwind@latest init --framework astro
+npx starwind@latest init --framework react
+npx starwind@latest init --defaults
+npx starwind@latest init --pro
+```
+
+| Flag                       | Meaning                              |
+| -------------------------- | ------------------------------------ |
+| `-d, --defaults`           | Accept default prompts.              |
+| `-p, --pro`                | Initialize and configure Pro access. |
+| `--framework astro\|react` | Select the public framework target.  |
+| `--astro`                  | Astro shortcut.                      |
+| `--react`                  | React shortcut.                      |
+
+Choose one framework selector. If `init` finds a legacy config, it can offer the migration flow.
+
+## `migrate`
+
+Migrates a pre-Runtime Astro copied-component project. It migrates all safe registered components in
+one run and does not accept component names.
+
+```bash
+npx starwind@latest migrate
+npx starwind@latest migrate --yes --package-manager pnpm
+```
+
+| Flag                                    | Meaning                                                             |
+| --------------------------------------- | ------------------------------------------------------------------- |
+| `-y, --yes`                             | Skip prompts; creates a backup and overwrites registered conflicts. |
+| `-m, --package-manager npm\|pnpm\|yarn` | Select dependency runner.                                           |
+
+Use the interactive command by default. Read [v3-migration.md](./v3-migration.md) before running it;
+`--yes` belongs only on a clean, recoverable worktree.
+
+## `add`
+
+Adds Runtime-backed styled component source for the configured framework. With no names it opens an
+interactive picker.
+
+```bash
+npx starwind@latest add button dialog combobox
+npx starwind@latest add button --framework react
+npx starwind@latest add --all
+npx starwind@latest add @starwind-pro/hero-01 button
+```
+
+| Flag                                    | Meaning                                                    |
+| --------------------------------------- | ---------------------------------------------------------- |
+| `-a, --all`                             | Add every available uninstalled styled component in scope. |
+| `-y, --yes`                             | Skip confirmation prompts.                                 |
+| `-o, --overwrite`                       | Replace files that already exist.                          |
+| `--framework astro\|react`              | Override the styled target.                                |
+| `--registry <registry>`                 | Use a remote registry URL or local registry file.          |
+| `-m, --package-manager npm\|pnpm\|yarn` | Select dependency runner.                                  |
+
+The CLI resolves component dependencies and package requirements. Use exact Pro block commands from
+current search/docs/MCP results. Inspect every created or overwritten file.
+
+## `update`
+
+Refreshes installed styled source and can overwrite local changes. With no names it opens an
+installed-component picker for the selected framework.
+
+```bash
+npx starwind@latest update button --dry-run
+npx starwind@latest update button --diff
+npx starwind@latest update button --view
+npx starwind@latest update button --diff src/components/starwind/button/variants.ts
+npx starwind@latest update button --view src/components/starwind/button/Button.astro
+npx starwind@latest update --all --framework all
+```
+
+| Flag                                    | Meaning                                           |
+| --------------------------------------- | ------------------------------------------------- |
+| `-a, --all`                             | Update every installed component in scope.        |
+| `-y, --yes`                             | Skip confirmation prompts.                        |
+| `--dry-run`                             | Plan changes without writing files.               |
+| `--diff [path]`                         | Show all planned diffs or one planned path.       |
+| `--view [path]`                         | Show all new file contents or one planned path.   |
+| `--framework astro\|react\|all`         | Select one or every configured styled target.     |
+| `--registry <registry>`                 | Use a remote registry URL or local registry file. |
+| `-m, --package-manager npm\|pnpm\|yarn` | Select package updates.                           |
+
+Preview customized components first. Use `--all` only when every installed component in the chosen
+framework scope is intended.
+
+## Framework Targeting
+
+The framework chosen by `init` is primary and normally writes to `componentDir`. A project that
+intentionally owns Astro and React styled source side by side can use framework overrides; additional
+destinations are recorded under `componentDirs.<framework>`.
+
+```bash
+npx starwind@latest add button --framework react
+npx starwind@latest update button --framework react
+npx starwind@latest remove button --framework react
+```
+
+A framework flag selects generated source and destination. It does not convert application code
+between frameworks.
+
+## `primitives`
+
+Use this namespace only when the project needs compile-ready Primitive adapter source copied into the
+repository. Normal package-based Primitives come from `@starwind-ui/astro` or
+`@starwind-ui/react` and do not need vendoring.
+
+### Add
+
+```bash
+npx starwind@latest primitives add button checkbox
+npx starwind@latest primitives add button --framework react --to src/react-primitives
+npx starwind@latest primitives add --all
+```
+
+| Flag                                    | Meaning                           |
+| --------------------------------------- | --------------------------------- |
+| `-a, --all`                             | Add all available Primitives.     |
+| `-y, --yes`                             | Skip confirmation prompts.        |
+| `-o, --overwrite`                       | Replace existing Primitive files. |
+| `--framework astro\|react`              | Select the adapter source target. |
+| `--to <dir>`                            | Set the destination.              |
+| `-p, --path <dir>`                      | Alias for `--to`.                 |
+| `-m, --package-manager npm\|pnpm\|yarn` | Select dependency runner.         |
+
+### Update
+
+```bash
+npx starwind@latest primitives update button --dry-run
+npx starwind@latest primitives update button --diff
+npx starwind@latest primitives update --all --framework react
+```
+
+`primitives update` supports `--all`, `--yes`, `--dry-run`, `--diff [path]`, `--view [path]`,
+`--framework astro|react`, and `--package-manager`. It can overwrite locally customized vendored
+source; preview and review it like styled source.
+
+### List
+
+```bash
+npx starwind@latest primitives list
+npx starwind@latest primitives list --framework all --json
+```
+
+`primitives list` supports `--framework astro|react|all` and `--json`.
+
+There is no Primitive remove/export command, Runtime source eject/add command,
+`starwind add --primitives`, or `starwind update --primitives`.
+
+## `search`
+
+Searches styled components and Pro blocks; `--primitives` switches to Primitive source discovery.
+
+```bash
+npx starwind@latest search combobox --json
+npx starwind@latest search hero --plan free --limit 5
+npx starwind@latest search button --primitives --framework react
+```
+
+| Flag                            | Meaning                                              |
+| ------------------------------- | ---------------------------------------------------- |
+| `-p, --plan free\|pro`          | Filter Pro results.                                  |
+| `-c, --category <category>`     | Filter Pro category.                                 |
+| `-l, --limit <number>`          | Limit results; defaults to 20 and caps at 50.        |
+| `-o, --offset <number>`         | Offset paginated results.                            |
+| `--json`                        | Print structured output.                             |
+| `--registry <registry>`         | Search a remote registry URL or local registry file. |
+| `--primitives`                  | Search Primitive source.                             |
+| `--framework astro\|react\|all` | Scope Primitive search.                              |
+
+## `docs`
+
+Opens or returns references for one or more styled components.
+
+```bash
+npx starwind@latest docs button dialog
+npx starwind@latest docs combobox --json
+```
+
+`docs` supports `--json` and `--registry <registry>`. A URL result is a pointer: read the page or
+its Markdown alternate before implementing an API.
+
+## `remove`
+
+Deletes installed styled source and updates config. Search application imports before removal.
+
+```bash
+npx starwind@latest remove button
+npx starwind@latest remove button --framework react
+npx starwind@latest remove --all --framework all
+```
+
+`remove` supports `--all`, `--yes`, and `--framework astro|react|all`. Use `--all` only when
+the entire chosen scope is intended.
+
+## `setup`
+
+Configures Starwind Pro for an initialized project.
+
+```bash
+npx starwind@latest setup
+npx starwind@latest setup --pro
+npx starwind@latest setup --yes --package-manager pnpm
+```
+
+`setup` supports `--pro` (currently the default task), `--yes`, and `--package-manager`. It
+writes authorization configuration to `starwind.config.json`, creates or updates `.env.local`,
+and ensures the environment file is ignored. Never expose the license value.
+
+## Registry Safety And Provenance
+
+`--registry` can point to a local registry file or remote registry URL. Treat a non-bundled
+registry as executable source input: inspect its origin and generated files before accepting them.
+
+- Do not send Pro authorization headers or `STARWIND_LICENSE_KEY` to an untrusted origin.
+- Keep local registry paths inside the intended project/repository boundary.
+- Preserve the registry recorded for installed components in `starwind.config.json`; it identifies
+  the source an update should compare against.
+- Preview an update from the same intended registry before overwriting locally owned source.
+- Do not transplant shadcn registry addresses, schemas, or package conventions into Starwind.
+
+## Command Boundaries
+
+Do not transfer shadcn commands into Starwind. Starwind has no top-level `info`, `apply`, `build`,
+or `create` command. Preview is expressed by `update --dry-run|--diff|--view`, while vendored
+Primitive management stays under `starwind primitives`.
+
+When local CLI output and this reference differ, prefer the installed/current CLI for flags and
+current Starwind docs for public behavior, then update the skill rather than guessing.

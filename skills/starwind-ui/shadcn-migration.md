@@ -1,5 +1,7 @@
 # Shadcn-Style Theme Migration
 
+This reference migrates theme tokens only. For a legacy Starwind UI product upgrade, use [v3-migration.md](./v3-migration.md).
+
 Starwind tokens are intentionally familiar to shadcn-style themes, but the target is Tailwind CSS v4 with `@theme inline` and Starwind's CSS variable names.
 
 ## Migration Strategy
@@ -10,6 +12,17 @@ Starwind tokens are intentionally familiar to shadcn-style themes, but the targe
 4. Preserve Starwind's `@theme inline` mappings.
 5. Preserve Starwind-specific tokens such as `--primary-accent`, `--secondary-accent`, status colors, and sidebar tokens.
 6. Check foreground/background contrast after migration.
+
+## Starwind-Only Tokens To Preserve
+
+These do not always have a direct shadcn source value. Keep their existing Starwind values unless
+the migration intentionally supplies a semantic replacement:
+
+| Token family                                      | Preserve because                                                                 |
+| ------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `--primary-accent`, `--secondary-accent`          | Brand text needs readable colors on the page background.                         |
+| `--info*`, `--success*`, `--warning*`, `--error*` | Status variants depend on both background and foreground pairs.                  |
+| `--sidebar-*`                                     | Sidebar surfaces, actions, borders, and focus outlines use a separate token set. |
 
 ## Common Mapping
 

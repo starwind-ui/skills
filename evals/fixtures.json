@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "source": {
+    "repository": "https://github.com/starwind-ui/starwind-ui.git",
+    "commit": "5f27fd1c466ea5398802913ca900b4b41998d403"
+  },
+  "copies": [
+    {
+      "fixture": "starwind-ui/astro-settings-form",
+      "from": "apps/demo/src/components/starwind-runtime",
+      "components": [
+        "button",
+        "field",
+        "separator",
+        "spinner",
+        "switch"
+      ]
+    },
+    {
+      "fixture": "starwind-ui/react-profile-combobox",
+      "from": "apps/react-demo/src/components/starwind-runtime",
+      "components": [
+        "avatar",
+        "button",
+        "combobox",
+        "dialog",
+        "field",
+        "input",
+        "input-group",
+        "separator",
+        "textarea"
+      ]
+    },
+    {
+      "fixture": "starwind-ui/astro-v3-post-migration",
+      "from": "apps/demo/src/components/starwind-runtime",
+      "components": [
+        "button",
+        "combobox",
+        "dialog",
+        "input",
+        "input-group",
+        "switch",
+        "textarea"
+      ]
+    }
+  ]
+}

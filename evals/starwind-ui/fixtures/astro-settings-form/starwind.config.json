@@ -1,0 +1,37 @@
+{
+  "$schema": "https://starwind.dev/config-schema.v2.json",
+  "version": 2,
+  "framework": "astro",
+  "componentDir": "src/components/starwind",
+  "registry": {
+    "source": "bundled",
+    "version": "2.1.0"
+  },
+  "components": [
+    {
+      "framework": "astro",
+      "name": "button",
+      "version": "3.0.1"
+    },
+    {
+      "framework": "astro",
+      "name": "field",
+      "version": "1.0.1"
+    },
+    {
+      "framework": "astro",
+      "name": "separator",
+      "version": "1.1.0"
+    },
+    {
+      "framework": "astro",
+      "name": "spinner",
+      "version": "1.1.1"
+    },
+    {
+      "framework": "astro",
+      "name": "switch",
+      "version": "2.0.1"
+    }
+  ]
+}

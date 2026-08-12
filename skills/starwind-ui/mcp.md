@@ -1,169 +1,184 @@
-# Starwind MCP Server
+# Starwind MCP And AI Sources
 
-The published Starwind MCP server lets AI assistants fetch live Starwind docs, generate validated CLI commands, and search Starwind Pro blocks.
-
----
-
-## Setup
-
-The MCP package is `@starwind-ui/mcp`.
+The published MCP package is `@starwind-ui/mcp`:
 
 ```bash
 npx -y @starwind-ui/mcp
 ```
 
-Common client config files:
+It gives compatible assistants V3-layered docs and search, validated init/add/migrate commands,
+Astro/React targeting, package-manager detection, and local project-context inspection. It
+complements direct project inspection; even with `cwd`, it does not know unsaved component
+customizations or application conventions.
 
-| Client      | Config file            |
-| ----------- | ---------------------- |
-| Codex       | `~/.codex/config.toml` |
-| Claude Code | `.mcp.json`            |
-| Cursor      | `.cursor/mcp.json`     |
-| VS Code     | `.vscode/mcp.json`     |
-| opencode    | `opencode.json`        |
-| Windsurf    | `mcp_config.json`      |
+## Setup
 
----
+Codex example:
 
-## Tools
-
-> **Tip:** MCP tools handle live Starwind docs, validated install command generation, and Starwind Pro block search. They do not replace local project inspection. Read `package.json`, lockfiles, Astro config, `starwind.config.json`, the active Starwind CSS file, and installed component source for project context.
-
-### `starwind_docs`
-
-Fetches live Starwind UI documentation from `starwind.dev`.
-
-**Input:**
-
-| Field   | Type               | Notes                                                                              |
-| ------- | ------------------ | ---------------------------------------------------------------------------------- |
-| `topic` | `string` optional  | Filter docs, such as `button`, `cli`, `ai`, `theming`, `installation`, or `select` |
-| `full`  | `boolean` optional | `true` returns fuller docs with more examples; default is concise                  |
-
-**Examples:**
-
-```json
-{ "topic": "button", "full": false }
-{ "topic": "cli", "full": true }
-{ "topic": "ai", "full": true }
+```toml
+[mcp_servers.starwind_ui]
+command = "npx"
+args = ["-y", "@starwind-ui/mcp"]
+enabled = true
 ```
 
-Use this before implementing component props, custom events, theme behavior, or setup instructions.
-
-### `starwind_add`
-
-Generates validated CLI install commands for Starwind components and Pro blocks. It validates component names and can detect or accept a package manager.
-
-**Input:**
-
-| Field            | Type                                 | Notes                                                                |
-| ---------------- | ------------------------------------ | -------------------------------------------------------------------- |
-| `components`     | `string[]` required                  | Component names, Pro block names, or `["--all"]`                     |
-| `cwd`            | `string` optional                    | Working directory for package-manager detection                      |
-| `packageManager` | `"npm" \| "pnpm" \| "yarn"` optional | Override detection                                                   |
-| `init`           | `boolean` optional                   | Include an init command for new projects                             |
-| `pro`            | `boolean` optional                   | Generate Pro-aware setup; auto-detected for `@starwind-pro/*` blocks |
-
-**Examples:**
+Generic JSON client example:
 
 ```json
-{ "components": ["button", "select"], "packageManager": "pnpm" }
-{ "components": ["--all"], "packageManager": "npm" }
-{ "components": ["@starwind-pro/hero-01", "button"], "init": true, "pro": true }
+{
+  "mcpServers": {
+    "starwind-ui": {
+      "command": "npx",
+      "args": ["-y", "@starwind-ui/mcp"]
+    }
+  }
+}
 ```
 
-Rules:
+Restart or reload the MCP client after adding the server. Use the client-displayed live schema when
+it differs from this reference.
 
-- Use this after checking docs or search results so you know which components to install.
-- Do not remove dependencies from generated Pro block commands.
-- Even when the tool returns a command, still run it from the user's project root and read added files afterward.
+## V3 Surfaces
 
-### `starwind_init`
+The MCP keeps styled components, Primitive adapters, and Runtime APIs distinct through `surface`
+filters. Use [layers.md](./layers.md) for layer selection and ownership rules. The MCP validates the
+versioned `ai-manifest.json`, caches valid metadata, and uses a bundled V3 fallback when the live
+manifest is unavailable; returned metadata identifies its source.
 
-Generates initialization guidance for Starwind UI projects.
+## Current Tools
 
-**Input:**
+The current package registers five tools. Calls return readable JSON plus MCP `structuredContent`:
 
-| Field            | Type                                 | Notes                                                                           |
-| ---------------- | ------------------------------------ | ------------------------------------------------------------------------------- |
-| `cwd`            | `string` optional                    | Working directory for package-manager detection                                 |
-| `packageManager` | `"npm" \| "pnpm" \| "yarn"` optional | Override detection                                                              |
-| `pro`            | `boolean` optional                   | Defaults to Pro setup in the MCP tool; set `false` only for standard-only setup |
+| Tool | Inputs | Returns |
+| --- | --- | --- |
+| `starwind_docs` | optional `topic`, `surface`, `full` | exact component, Primitive, guide, or Runtime Markdown; otherwise filtered/full aggregate docs |
+| `starwind_search` | optional `query`, `cwd`, `surface`, `framework`, `category`, `plan`, `limit`, `offset` | separate styled, Primitive, and Pro groups plus discovery/upgrade guidance |
+| `starwind_add` | required `components`; optional `surface`, `framework`, `to`, `overwrite`, `init`, `pro`, `cwd`, `packageManager` | validated commands, skipped/invalid items, project context, and any deferred paid install |
+| `starwind_init` | optional `cwd`, `packageManager`, `framework`, `pro` | V3 init command, detected project context, requirements, warnings, and next steps |
+| `starwind_migrate` | optional `cwd`, `packageManager`, `yes` | applicability, migration command, project context, warnings, and post-migration review list |
 
-**Examples:**
+Older MCP installations or older public docs may expose `search_starwind_pro_blocks`. Prefer
+`starwind_search` when the client offers it; the older tool searches only Pro blocks with `query`,
+`category`, `plan`, and `limit`.
+
+## Using The Tools
+
+### Documentation
+
+Set `surface` when `auto` would confuse a styled component with a same-named Primitive. Prefer
+exact `resultType: "page"`; `filtered` is a degraded aggregate excerpt.
 
 ```json
-{ "packageManager": "pnpm", "pro": false }
-{ "packageManager": "pnpm", "pro": true }
+{ "topic": "combobox", "surface": "primitive" }
 ```
 
-Rules:
+### Search
 
-- Use Pro initialization when the user wants Starwind Pro blocks from the start.
-- For standard-only Starwind UI, set `pro: false`.
-- Treat generated commands as guidance; run them only in the intended user project.
-
-### `search_starwind_pro_blocks`
-
-Searches Starwind Pro blocks by query, category, and plan type.
-
-**Input:**
-
-| Field      | Type                       | Notes                                                                                   |
-| ---------- | -------------------------- | --------------------------------------------------------------------------------------- |
-| `query`    | `string` optional          | Text search, such as `hero`, `pricing`, or `auth`                                       |
-| `category` | `string` optional          | Filter by category, such as `hero`, `pricing`, `footer`, `navigation`, `authentication` |
-| `plan`     | `"free" \| "pro"` optional | Filter by free or paid blocks                                                           |
-| `limit`    | `number` optional          | Default `10`, max `50`                                                                  |
-
-**Examples:**
+Use `surface` and `framework` when relevant. Read `styledComponents`, `primitives`, and `proBlocks`
+separately; React searches omit Astro-only Pro blocks.
 
 ```json
-{ "query": "hero", "plan": "free", "limit": 2 }
-{ "category": "pricing", "plan": "pro", "limit": 10 }
+{ "query": "combobox", "surface": "primitive", "framework": "react" }
 ```
 
-Rules:
+```json
+{ "query": "pricing", "framework": "astro", "plan": "free", "limit": 10 }
+```
 
-- Use returned `installCommand` exactly unless the package runner must be adapted to the project.
-- Paid blocks may require a Starwind Pro license.
-- Pro blocks require Pro setup. The tool may report an init/setup command and requirements.
+### Add
 
----
+`surface` defaults to `styled`. Primitive requests generate `primitives add`, and only they accept
+a safe relative `to` path. `overwrite` is opt-in, and `all` must stand alone.
+
+```json
+{ "components": ["button", "dialog"], "framework": "astro", "cwd": "/absolute/project/path" }
+```
+
+```json
+{ "components": ["combobox"], "surface": "primitive", "framework": "react", "to": "src/primitives" }
+```
+
+Inspect success, warnings, invalid items, commands, and any deferred command before execution.
+
+### Init
+
+The tool detects framework and package manager from `cwd`; `framework` can override detection.
+`pro` defaults to false and is rejected for React. It reports the Node.js 22.12+ requirement and
+redirects detected legacy config to migration.
+
+```json
+{ "cwd": "/absolute/project/path", "framework": "react" }
+```
+
+### Migrate
+
+The tool returns a command only for an applicable legacy Astro project. It is interactive by
+default; `yes: true` explicitly permits backup-and-overwrite behavior.
+
+```json
+{ "cwd": "/absolute/project/path" }
+```
+
+Read its warnings and review list, then follow [v3-migration.md](./v3-migration.md) for the actual
+runbook.
+
+## Command Boundaries
+
+MCP generates guidance; it does not execute commands or authorize destructive changes. Use
+[cli.md](./cli.md) and current CLI help for styled `update`/`remove`, Primitive `update`/`list`, and
+other workflows not exposed as MCP tools. MCP can generate Primitive add and migration commands,
+but the CLI owns their exact execution behavior.
+
+Run generated commands only from the intended project root, preview destructive updates, and
+inspect every written file.
 
 ## Public AI Files
 
-Use these when MCP is unavailable or when static docs are enough:
+When MCP is unavailable, use:
 
-- `https://starwind.dev/llms.txt` - concise AI overview
-- `https://starwind.dev/llms-full.txt` - full static reference
-- `https://starwind.dev/ai-manifest.json` - structured component, pattern, and guide metadata
-- Per-page Markdown docs - append `.md` to a docs route, such as `https://starwind.dev/docs/components/button.md`
+- `https://starwind.dev/llms.txt`: concise public overview.
+- `https://starwind.dev/llms-full.txt`: full static AI reference.
+- `https://starwind.dev/ai-manifest.json`: versioned components, guides, styled/Primitive/Runtime
+  layers, framework targets, and MCP metadata.
+- Per-page Markdown: append `.md` to a docs route, for example
+  `https://starwind.dev/docs/components/combobox.md` or
+  `https://starwind.dev/docs/primitives/combobox.md`.
 
-HTML docs pages include a Markdown alternate link. Prefer the advertised Markdown URL when available.
+CLI documentation lookup also returns page references:
 
----
+```bash
+npx starwind@latest docs button combobox --json
+```
+
+A URL or manifest record is a context pointer. Read its content before implementing props, events,
+parts, framework behavior, or Runtime APIs.
 
 ## Source Priority
 
-Use this order when facts differ:
+Resolve different kinds of truth from the source that owns them:
 
-1. Local project files and installed Starwind component source.
-2. Current MCP tool responses.
-3. Current Starwind docs Markdown pages and AI files.
-4. CLI output from the local `starwind` package.
-5. General memory.
+1. Local `starwind.config.json`, installed component/Primitive source, package versions, framework
+   files, and tests own the current application state.
+2. The client-displayed MCP schema and current MCP responses own the available tool contract.
+3. Current Starwind Markdown docs own public component, Primitive, Runtime, and guide APIs.
+4. Current CLI help/source owns commands and flags; registry metadata owns installable targets and
+   dependencies.
+5. `llms.txt`, `llms-full.txt`, and `ai-manifest.json` provide broad/static fallback context.
+6. Memory is last.
 
----
+Local installed source can be older than current docs, while fallback MCP metadata can be older than
+the live manifest. State which side differs and choose intentionally rather than silently mixing
+versions.
 
-## Verification Checklist
+## Before Using Results
 
-Before implementing Starwind UI changes:
+Pass `cwd` where supported, but independently confirm framework, layer, config, destinations, local
+exports, and installed source. After running a generated command, inspect every written file and run
+the relevant format, typecheck, build, tests, and browser checks.
 
-- Confirm the project is Astro and uses Tailwind CSS v4.
-- Confirm `starwind.config.json`, `tailwind.css`, and `componentDir`.
-- Confirm installed components and local exports before importing.
-- Use `starwind_docs` or docs Markdown for props, events, and composition.
-- Use `starwind_add` for install command generation when available.
-- Use `search_starwind_pro_blocks` before choosing a Pro block.
-- After adding files, read them and fix alias drift, icon imports, missing subcomponents, and Astro syntax issues.
+## Pro Results
+
+Pro blocks currently target Astro. Free results use `installCommand` after ordinary initialization;
+paid results use `deferredInstallCommand` plus `proUpgrade`. Run the returned setup before a deferred
+install and only when paid authorization is intended. Setup auto-detects the package manager. Keep
+`STARWIND_LICENSE_KEY` in ignored `.env.local` and out of prompts, logs, code, and handoff text.

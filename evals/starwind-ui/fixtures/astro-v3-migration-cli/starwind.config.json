@@ -1,0 +1,24 @@
+{
+  "$schema": "https://starwind.dev/config-schema.json",
+  "componentDir": "src/components/starwind",
+  "tailwind": {
+    "css": "src/styles/starwind.css",
+    "baseColor": "neutral",
+    "cssVariables": true
+  },
+  "utilsDir": "src/lib/utils",
+  "components": [
+    {
+      "name": "button",
+      "version": "1.2.0"
+    },
+    {
+      "name": "old-menu",
+      "version": "1.0.0"
+    },
+    {
+      "name": "legacy-chart",
+      "version": "0.8.0"
+    }
+  ]
+}

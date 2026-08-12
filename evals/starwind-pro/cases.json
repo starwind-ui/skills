@@ -1,0 +1,195 @@
+{
+  "skill": "skills/starwind-pro",
+  "cases": [
+    {
+      "id": "pro-block-adaptation",
+      "title": "Adapt an already-installed Pro block",
+      "fixture": "pro-block-adaptation",
+      "prompt": "Adapt the already-installed free hero block for Acme Analytics: headline Make every metric actionable, dashboard link /dashboard, and docs link /docs. Preserve its responsive layout, dark-mode styling, motion behavior, and reduced-motion fallback. The project and block are already configured and installed; do not run setup, reinstall the block, use the network, or add packages.",
+      "assertions": [
+        {
+          "type": "contains",
+          "file": "src/components/blocks/hero-01.astro",
+          "pattern": "Make every metric actionable",
+          "description": "Adapts the hero headline",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/components/blocks/hero-01.astro",
+          "pattern": "/dashboard",
+          "description": "Adds the requested dashboard link",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/components/blocks/hero-01.astro",
+          "pattern": "/docs",
+          "description": "Adds the requested docs link",
+          "weight": 1
+        },
+        {
+          "type": "preserves",
+          "file": "src/components/blocks/hero-01.astro",
+          "patterns": [
+            "md:grid-cols-2",
+            "dark:bg-neutral-950",
+            "motion-safe:animate-in",
+            "motion-reduce:transition-none",
+            "grid gap-10 rounded-3xl bg-white p-8 shadow-sm",
+            "flex flex-col justify-center gap-6",
+            "flex flex-wrap gap-3",
+            "min-h-72 rounded-2xl bg-muted",
+            "A responsive analytics workspace for growing teams\\.",
+            "aria-label=\\\"Product preview\\\""
+          ],
+          "description": "Preserves responsive, dark, and motion behavior",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "file_not_exists",
+          "file": "src/components/blocks/hero-01.astro.orig",
+          "description": "Leaves no patch backup file in the source tree",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/components/blocks/hero-01.astro",
+          "pattern": "Acme Analytics",
+          "description": "Applies the requested product identity",
+          "weight": 2,
+          "hard": true
+        }
+      ],
+      "scenario_type": "adaptation",
+      "integration": {
+        "install": true,
+        "commands": [
+          [
+            "pnpm",
+            "run",
+            "build"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "pro-setup-workflow",
+      "title": "Configure Pro access through the setup command",
+      "fixture": "pro-setup-workflow",
+      "prompt": "Configure this existing Starwind Astro project for Starwind Pro. The real registry is intentionally offline, so this fixture exposes a cached interface-compatible Starwind CLI through its pnpm starwind script. Run setup noninteractively with pnpm as the package manager. The user will add the real license later: do not invent, request, print, or hardcode a key. Review the generated config and secret-file handling and report the safe next step.",
+      "assertions": [
+        {
+          "type": "json_equals",
+          "file": ".starwind-cli-run.json",
+          "path": "command",
+          "value": "setup",
+          "description": "Runs setup instead of recreating it manually",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "json_equals",
+          "file": ".starwind-cli-run.json",
+          "path": "yes",
+          "value": true,
+          "description": "Uses noninteractive setup in the isolated fixture",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "json_equals",
+          "file": ".starwind-cli-run.json",
+          "path": "package_manager",
+          "value": "pnpm",
+          "description": "Passes the project package manager explicitly",
+          "weight": 1
+        },
+        {
+          "type": "json_equals",
+          "file": "starwind.config.json",
+          "path": "version",
+          "value": 2,
+          "description": "Preserves V3 config version 2",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "json_equals",
+          "file": "starwind.config.json",
+          "path": "framework",
+          "value": "astro",
+          "description": "Preserves the supported Pro framework",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "starwind.config.json",
+          "pattern": "https://pro\\.starwind\\.dev/r/\\{name\\}",
+          "description": "Configures the official Pro registry template",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "starwind.config.json",
+          "pattern": "Bearer \\${STARWIND_LICENSE_KEY}",
+          "description": "References the license through environment expansion",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": ".gitignore",
+          "pattern": "^\\.env\\.local$",
+          "description": "Keeps the local license file ignored",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": ".env.local",
+          "pattern": "STARWIND_LICENSE_KEY=your_starwind_pro_license_key",
+          "description": "Creates only the CLI placeholder for the future key",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
+          "file": "starwind.config.json",
+          "pattern": "sw_(live|test)_[A-Za-z0-9]+",
+          "description": "Does not hardcode a license secret",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "RESULT.md",
+          "pattern": "STARWIND_LICENSE_KEY",
+          "description": "Names the environment variable in the handoff without exposing a key",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "RESULT.md",
+          "pattern": "\\.env\\.local",
+          "description": "Tells the user where to add the future license",
+          "weight": 1
+        }
+      ],
+      "scenario_type": "cli-workflow",
+      "integration": {
+        "install": false,
+        "commands": [
+          [
+            "node",
+            "--check",
+            "scripts/starwind.mjs"
+          ]
+        ]
+      }
+    }
+  ]
+}

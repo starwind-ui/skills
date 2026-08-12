@@ -1,81 +1,117 @@
-# Customization & Theming
+# Customization And Theming
 
-Starwind components reference semantic CSS variable tokens. Change the variables in the active Starwind CSS file to change every component.
+Starwind styled components use semantic CSS variables registered with Tailwind CSS 4. Global design
+changes belong in the active CSS file from `starwind.config.json`, not a second theme file.
 
 ## Contents
 
-- How it works: CSS variables -> Tailwind utilities -> components
-- Color variables and Tailwind v4 token registration
-- Dark mode setup
-- Changing the theme
-- Adding custom colors
-- Border radius
-- Customizing components: variants, `class`, source edits, wrappers
-- Checking for updates
+- token flow and semantic color variables
+- border radius
+- dark-mode initialization
+- changing and adding semantic tokens
+- styled-component variants and wrappers
+- checking styled and vendored-source updates
 
----
+## Token Flow
 
-## How It Works
+1. `:root` defines light values and `.dark` defines dark values.
+2. `@theme inline` maps them to Tailwind utilities.
+3. Styled components use utilities such as `bg-primary`, `text-muted-foreground`, and
+   `border-border`.
+4. Changing a semantic variable updates every component that consumes it.
 
-1. CSS variables are defined in `:root` for light mode and `.dark` for dark mode.
-2. Tailwind CSS v4 maps them through `@theme inline`: `--color-primary: var(--primary)`.
-3. Components use utilities like `bg-primary`, `text-muted-foreground`, `border-border`, and `outline-outline`.
-4. Changing a variable changes every component that references the matching utility.
-
-Find the active CSS file from `starwind.config.json` first, usually:
-
-```txt
-src/styles/starwind.css
-```
-
-Never create a second theme file when the project already has one.
-
----
+Preserve existing `@theme inline`, `:root`, `.dark`, sidebar/status tokens, radii, keyframes, and
+component-specific variables.
 
 ## Color Variables
 
-Starwind uses the `name` / `name-foreground` convention. The base variable is for backgrounds, fills, borders, or actions. The `-foreground` variable is for readable text/icons on that background.
+Starwind uses the `name` / `name-foreground` convention. The base variable is for backgrounds,
+fills, borders, or actions. The `-foreground` variable is for readable text or icons on that
+background.
 
-| Variable                                      | Purpose                                           |
-| --------------------------------------------- | ------------------------------------------------- |
-| `--background` / `--foreground`               | Page background and default text                  |
-| `--card` / `--card-foreground`                | Card surfaces                                     |
-| `--popover` / `--popover-foreground`          | Popovers, tooltips, selects, menus                |
-| `--primary` / `--primary-foreground`          | Primary buttons and actions                       |
-| `--secondary` / `--secondary-foreground`      | Secondary actions                                 |
-| `--primary-accent`, `--secondary-accent`      | Brand text colors readable on the page background |
-| `--muted` / `--muted-foreground`              | Muted surfaces and quiet text                     |
-| `--accent` / `--accent-foreground`            | Hover and selected states                         |
-| `--info`, `--success`, `--warning`, `--error` | Status colors and matching foregrounds            |
-| `--border`                                    | Default border color                              |
-| `--input`                                     | Form input borders                                |
-| `--outline`                                   | Focus outline color                               |
-| `--radius`                                    | Global radius seed                                |
-| `--sidebar-*`                                 | Sidebar-specific colors                           |
+| Variable                                 | Purpose                                           |
+| ---------------------------------------- | ------------------------------------------------- |
+| `--background` / `--foreground`          | Page background and default text                  |
+| `--card` / `--card-foreground`           | Card surfaces                                     |
+| `--popover` / `--popover-foreground`     | Popovers, tooltips, selects, and menus            |
+| `--primary` / `--primary-foreground`     | Primary buttons and actions                       |
+| `--secondary` / `--secondary-foreground` | Secondary actions                                 |
+| `--primary-accent`, `--secondary-accent` | Brand text colors readable on the page background |
+| `--muted` / `--muted-foreground`         | Muted surfaces and quiet text                     |
+| `--accent` / `--accent-foreground`       | Hover and selected states                         |
+| `--info` / `--info-foreground`           | Informational states                              |
+| `--success` / `--success-foreground`     | Successful states                                 |
+| `--warning` / `--warning-foreground`     | Warning states                                    |
+| `--error` / `--error-foreground`         | Error and destructive states                      |
+| `--border`                               | Default border color                              |
+| `--input`                                | Form input borders                                |
+| `--outline`                              | Focus outline color                               |
+| `--radius`                               | Global radius seed                                |
+| `--sidebar-*`                            | Sidebar-specific colors                           |
 
-Default Starwind themes usually reference Tailwind CSS v4 palette variables like `var(--color-blue-700)`. OKLCH, hex, `rgb()`, and other valid CSS colors are fine when the local project already uses them.
+Default themes commonly reference Tailwind CSS 4 palette variables such as
+`var(--color-blue-700)`. Follow the active file when it uses OKLCH, hex, `rgb()`, or another valid
+CSS color format.
 
+## Border Radius
+
+`--radius` is the global seed. Starwind registers a complete Tailwind radius scale from it:
+
+| Token          | Value                            |
+| -------------- | -------------------------------- |
+| `--radius-xs`  | `calc(var(--radius) - 0.375rem)` |
+| `--radius-sm`  | `calc(var(--radius) - 0.25rem)`  |
+| `--radius-md`  | `calc(var(--radius) - 0.125rem)` |
+| `--radius-lg`  | `var(--radius)`                  |
+| `--radius-xl`  | `calc(var(--radius) + 0.25rem)`  |
+| `--radius-2xl` | `calc(var(--radius) + 0.5rem)`   |
+| `--radius-3xl` | `calc(var(--radius) + 1rem)`     |
+
+Change `--radius` for a system-wide adjustment. Use a local class such as `rounded-full` only for a
+deliberate exception.
+
+## Dark Mode Initialization
+
+Starwind uses the `.dark` class and the shared Runtime theme controller. Render `ThemeInitScript`
+in the document head so saved/system preference is applied before paint.
+
+Astro:
+
+```astro
+---
+import { ThemeInitScript } from "@starwind-ui/astro/theme";
 ---
 
-## Dark Mode
-
-Starwind uses class-based dark mode via `.dark` on the root element:
-
-```css
-@custom-variant dark (&:where(.dark, .dark *));
+<head>
+  <ThemeInitScript />
+</head>
 ```
 
-- Do not replace Starwind's `.dark` class model with a `data-theme` system unless the app already bridges that model.
-- Do not solve global theme requests by adding many component-level `dark:` color classes.
-- Update `.dark` with `:root` values, and preserve existing no-flash scripts.
+React framework document/root:
 
-Use `npx starwind@latest add theme-toggle` when the user wants a managed toggle. It persists the preference, toggles `.dark`, and dispatches `theme:change`.
+```tsx
+import { ThemeInitScript } from "@starwind-ui/react/theme";
 
----
+export function DocumentHead() {
+  return (
+    <head>
+      <ThemeInitScript />
+    </head>
+  );
+}
+```
 
-## Changing The Theme
+Place it through the host framework's documented server-rendered head mechanism. For programmatic
+changes, import `initThemeController` from the matching adapter package and listen for
+`starwind:theme-change`.
 
-Edit CSS variables directly in the active Starwind CSS file.
+Remove a legacy inline localStorage/theme helper during V3 migration so two controllers do not race.
+The legacy `theme:change` event may exist for compatibility, but new integrations use the Runtime
+event.
+
+## Change Existing Tokens
+
+Follow the active file's value style:
 
 ```css
 :root {
@@ -91,22 +127,22 @@ Edit CSS variables directly in the active Starwind CSS file.
 }
 ```
 
-Then keep component usage semantic: `<Button variant="primary">Save changes</Button>`.
+Keep component usage semantic:
 
----
+```astro
+<Button variant="primary">Save changes</Button>
+```
 
-## Adding Custom Colors
+## Add A Semantic Color
 
-Add variables to the active Starwind CSS file from `starwind.config.json`.
+Register the utility and define both modes in the same active CSS file:
 
 ```css
-/* 1. Register Tailwind v4 utilities. */
 @theme inline {
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
 }
 
-/* 2. Define light and dark values. */
 :root {
   --brand: var(--color-blue-700);
   --brand-foreground: var(--color-white);
@@ -118,91 +154,84 @@ Add variables to the active Starwind CSS file from `starwind.config.json`.
 }
 ```
 
+Use the registered utilities with the current framework's attribute syntax:
+
 ```astro
-<!-- 3. Use semantic utilities. -->
 <div class="bg-brand text-brand-foreground">Brand surface</div>
 ```
 
-Starwind is designed for Tailwind CSS v4, so use `@theme inline`; do not add Tailwind v3 `tailwind.config.js` color registration unless the local project has intentionally diverged.
+```tsx
+<div className="bg-brand text-brand-foreground">Brand surface</div>
+```
 
----
+Starwind uses Tailwind CSS 4. Add Tailwind v3 config only when the host project intentionally carries
+a separate legacy setup.
 
-## Border Radius
+## Customize A Styled Component
 
-`--radius` controls border radius globally. Starwind maps it to radius utilities in `@theme inline`.
+See [rules/styling.md](./rules/styling.md) for semantic-token, state-selector, spacing, and component
+override rules.
 
-```css
-:root {
-  --radius: 0.625rem;
+Use this order:
+
+1. Existing variant or prop.
+2. Semantic token.
+3. Layout/scoped class at the call site.
+4. New local variant following the installed `tailwind-variants` pattern.
+5. Wrapper composition.
+6. Direct local styled-source edit.
+
+To add a reusable variant, edit the installed component's `variants.ts` and follow its existing
+`tailwind-variants` shape:
+
+```ts
+variant: {
+  brand: "bg-brand text-brand-foreground hover:bg-brand/90 focus-visible:ring-brand/50",
 }
 ```
 
-Use local classes like `class="rounded-full"` only for one-off exceptions.
+For repeated composition, make a framework-native wrapper instead of duplicating markup. Astro
+example:
 
+```astro
+---
+import { Alert, AlertDescription, AlertTitle } from "@/components/starwind/alert";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
 ---
 
-## Customizing Components
-
-See also: [rules/styling.md](./rules/styling.md) for incorrect/correct examples.
-
-Prefer these approaches in order:
-
-### 1. Built-In Variants
-
-```astro
-<Button variant="outline" size="sm">Cancel</Button>
+<Alert>
+  <AlertTitle>{title}</AlertTitle>
+  <AlertDescription><slot /></AlertDescription>
+</Alert>
 ```
 
-Verify exact variants in current docs or local component source.
+Use the same composition with typed props and `children` in React.
 
-### 2. Tailwind Classes Via `class`
-
-```astro
-<Button class="w-full sm:w-auto">Continue</Button>
-```
-
-Use `class` for layout and scoped exceptions, not to recreate existing variants or theme tokens.
-
-### 3. Add A New Variant
-
-Edit installed component source only when variants, tokens, and `class` cannot express the change.
-
-```ts
-// components/starwind/button/variants.ts
-warning: "bg-warning text-warning-foreground hover:bg-warning/90";
-```
-
-Preserve `data-slot` attributes, exports, `tailwind-variants` / `tailwind-merge` patterns, and scripts.
-
-### 4. Wrapper Components
-
-Compose Starwind primitives into higher-level project components when a pattern repeats:
-
-```astro
-<Dialog>
-  <DialogTrigger asChild><slot name="trigger" /></DialogTrigger>
-  <DialogContent>
-    <slot />
-    <DialogFooter>
-      <Button variant="outline">Cancel</Button>
-      <Button variant="primary">Confirm</Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
-```
-
-Verify `asChild` and part names against current docs or local exports before using them.
-
----
+For source edits, preserve framework adapter imports, `data-slot`, required `data-sw-*` hooks,
+public exports, native semantics, and documented Runtime state attributes.
 
 ## Checking For Updates
 
-Starwind components are local source files after installation.
+Styled source belongs to the application, but an update can replace it. Preview before accepting
+upstream changes:
 
 ```bash
-npx starwind@latest update button
+npx starwind@latest update button --dry-run
+npx starwind@latest update button --diff
+npx starwind@latest update button --view
 ```
 
-`update` overwrites local component changes. Before updating customized components, check local edits, check imports, and read current docs/source.
+Vendored Primitive source has the same ownership risk. Preview it through its own namespace:
 
-Starwind currently documents `update`, `update --all`, `update --yes`, and `update --package-manager`.
+```bash
+npx starwind@latest primitives update button --dry-run
+npx starwind@latest primitives update button --diff
+```
+
+A customization is complete when light/dark values remain readable, the theme initializes without a
+wrong-theme flash, local variants still typecheck, and Runtime behavior survives the edit.

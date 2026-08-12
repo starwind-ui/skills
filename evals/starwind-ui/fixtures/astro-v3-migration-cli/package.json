@@ -1,0 +1,14 @@
+{
+  "name": "astro-v2-migration-fixture",
+  "private": true,
+  "packageManager": "pnpm@10.15.0",
+  "dependencies": {
+    "astro": "^5.12.0",
+    "@starwind-ui/astro": "^1.0.0",
+    "tailwindcss": "^4.1.0"
+  },
+  "type": "module",
+  "scripts": {
+    "starwind": "node scripts/starwind.mjs"
+  }
+}

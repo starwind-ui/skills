@@ -1,0 +1,19 @@
+{
+  "models": {
+    "luna-high": {
+      "model": "gpt-5.6-luna",
+      "reasoning_effort": "high",
+      "preferred_surface": "fresh-thread"
+    },
+    "terra-high": {
+      "model": "gpt-5.6-terra",
+      "reasoning_effort": "high",
+      "preferred_surface": "fresh-subagent"
+    },
+    "sol-medium": {
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "medium",
+      "preferred_surface": "fresh-subagent"
+    }
+  }
+}

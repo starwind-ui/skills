@@ -1,5 +1,7 @@
 references
 docs
+.scratch
 .agents
 AGENTS.md
 skills-lock.json
+.eval-runs/

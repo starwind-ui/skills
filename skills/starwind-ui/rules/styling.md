@@ -1,229 +1,184 @@
-# Styling & Customization
+# Styling And Customization Rules
 
-See [customization.md](../customization.md) for theming, CSS variables, dark mode, and adding custom colors.
+Use [customization.md](../customization.md) for global theming, color variables, radius, and dark-mode
+initialization.
 
 ## Contents
 
-- Semantic colors
-- Status/state indicators
-- Built-in variants first
-- `class` for layout only
-- No `space-x-*` / `space-y-*`
-- Prefer `size-*`
-- Prefer `truncate`
-- No manual `dark:` color overrides
-- Use Tailwind Variants for reusable variants
-- No manual z-index on overlays
+- styling priority
+- semantic and status tokens
+- built-in variants and call-site classes
+- Tailwind spacing, sizing, and truncation
+- global light/dark theming
+- reusable `tailwind-variants`
+- public selectors, Runtime hooks, and overlay presence
 
----
+## Priority
 
-## Semantic Colors
+Choose the first layer that expresses the request:
 
-Use Starwind semantic tokens. They map to CSS variables in the active Starwind CSS file and follow light/dark values.
+1. documented component prop or variant;
+2. semantic Tailwind token;
+3. documented state or `data-slot` selector;
+4. scoped layout/appearance class;
+5. local styled-component source edit.
 
-**Incorrect:**
+When editing installed internals, preserve `data-slot`, required `data-sw-*` discovery hooks,
+framework adapter wiring, and Runtime behavior.
+
+## Semantic Tokens
+
+Use tokens such as `bg-background`, `text-foreground`, `bg-card`, `text-card-foreground`,
+`bg-primary`, `text-primary-foreground`, `bg-muted`, `text-muted-foreground`, `border-border`,
+`border-input`, and `outline-outline`.
 
 ```astro
-<p class="text-slate-500">Secondary text</p>
-<section class="border-gray-200 bg-white text-gray-950">Content</section>
+<!-- Incorrect: fixed palette colors bypass the theme. -->
+<section class="border-gray-200 bg-white text-gray-950">
+  <p class="text-slate-500">Secondary text</p>
+</section>
+
+<!-- Correct: semantic utilities follow :root and .dark. -->
+<section class="border-border bg-background text-foreground">
+  <p class="text-muted-foreground">Secondary text</p>
+</section>
 ```
 
-**Correct:**
+## Status And State
+
+Use documented status variants and token pairs before raw green/red/yellow/blue utilities:
 
 ```astro
-<p class="text-muted-foreground">Secondary text</p>
-<section class="border-border bg-background text-foreground">Content</section>
-```
+<!-- Incorrect -->
+<span class="rounded-full bg-red-100 px-2 text-red-700">Failed</span>
 
-Common tokens include `bg-background`, `text-foreground`, `bg-card`, `text-card-foreground`, `bg-primary`, `text-primary-foreground`, `bg-muted`, `text-muted-foreground`, `border-border`, `border-input`, and `ring-outline`.
-
----
-
-## Status/State Indicators
-
-For positive, negative, warning, info, or status indicators, use component variants or semantic tokens before raw Tailwind colors.
-
-**Incorrect:**
-
-```astro
-<span class="text-green-600">+20.1%</span>
-<span class="rounded-full bg-red-100 px-2 py-0.5 text-red-700">Failed</span>
-```
-
-**Correct:**
-
-```astro
----
-import { Badge } from "@/components/starwind/badge";
----
-
-<span class="text-success">+20.1%</span>
+<!-- Correct -->
 <Badge variant="error">Failed</Badge>
+<span class="text-success">+20.1%</span>
 ```
 
-Use `info`, `success`, `warning`, and `error` variants when components support them. Add a custom CSS variable only when the semantic token does not exist.
+Common semantic families are `info`, `success`, `warning`, and `error`, each with a foreground
+partner in the theme. Verify the local variant file before assuming a component exposes every
+status variant.
 
----
+## Variants Before Utility Reconstruction
 
-## Built-In Variants First
-
-Use component variants and sizes before overriding styles with utility classes.
-
-**Incorrect:**
+Use the component API instead of rebuilding it at the call site:
 
 ```astro
-<Button class="border border-input bg-transparent text-foreground hover:bg-accent">
-  Cancel
-</Button>
+<!-- Incorrect -->
+<Button class="border border-input bg-transparent text-foreground hover:bg-accent">Cancel</Button>
+
+<!-- Correct -->
+<Button variant="outline" size="sm">Cancel</Button>
 ```
 
-**Correct:**
+Use `class` in Astro and `className` in React for layout and narrow exceptions such as `max-w-md`,
+`mx-auto`, `mt-4`, grid placement, or a deliberate one-off radius. Do not hide a new visual variant
+inside a long call-site class string.
 
 ```astro
-<Button variant="outline">Cancel</Button>
-```
-
-Check docs or local `variants.ts` for exact values. Common values include `default`, `primary`, `secondary`, `outline`, `ghost`, `info`, `success`, `warning`, and `error`.
-
----
-
-## `class` For Layout Only
-
-Use `class` for layout and scoped exceptions, such as `max-w-md`, `mx-auto`, `mt-4`, `grid`, `gap-4`, `size-10`, or `rounded-full`.
-
-Do not use `class` to replace component variants, semantic colors, or theme tokens.
-
-**Incorrect:**
-
-```astro
+<!-- Incorrect -->
 <Badge class="bg-green-100 text-green-700">Active</Badge>
-```
 
-**Correct:**
-
-```astro
+<!-- Correct -->
 <Badge variant="success">Active</Badge>
 ```
 
-Preferred order: variants/props -> semantic tokens -> CSS variables -> local `class` exceptions -> component internals.
+## Tailwind Conventions
 
----
-
-## No `space-x-*` / `space-y-*`
-
-Use `gap-*` instead.
+Prefer the concise Tailwind form:
 
 ```astro
 <!-- Incorrect -->
 <div class="flex space-x-2">
-  <Button>Cancel</Button>
-  <Button>Save</Button>
+  <Skeleton class="h-10 w-10 rounded-full" />
+  <p class="overflow-hidden text-ellipsis whitespace-nowrap">Long project name</p>
 </div>
 
 <!-- Correct -->
 <div class="flex gap-2">
-  <Button>Cancel</Button>
-  <Button>Save</Button>
+  <Skeleton class="size-10 rounded-full" />
+  <p class="truncate">Long project name</p>
 </div>
 ```
 
-`space-y-4` -> `flex flex-col gap-4`
+- Replace vertical `space-y-*` with `flex flex-col gap-*` or grid and `gap-*` in new layouts.
+- Use `size-*` only when width and height are equal.
+- Use `truncate` for a single line; use line clamp or intentional wrapping for multiple lines.
+- Preserve responsive, container-query, motion, and reduced-motion behavior during customization.
 
----
+## Global Light And Dark Themes
 
-## Prefer `size-*`
-
-Use `size-*` when width and height are equal.
+Do not scatter manual palette pairs across components when the colors represent the global theme:
 
 ```astro
 <!-- Incorrect -->
-<Skeleton class="h-10 w-10 rounded-full" />
+<main class="bg-white text-slate-950 dark:bg-slate-950 dark:text-slate-50">...</main>
 
 <!-- Correct -->
-<Skeleton class="size-10 rounded-full" />
+<main class="bg-background text-foreground">...</main>
 ```
 
-Applies to icons, avatars, skeletons, and icon buttons.
+Change `:root` and `.dark` in the active Starwind CSS file named by `starwind.config.json`. A local
+`dark:` utility remains appropriate for a deliberate component-specific behavior that is not a
+global semantic color replacement.
 
----
+## Reusable Variants
 
-## Prefer `truncate`
-
-Use `truncate`, not `overflow-hidden text-ellipsis whitespace-nowrap`.
-
-```astro
-<p class="truncate">A very long project name</p>
-```
-
-Use `line-clamp-*` or intentional wrapping for multi-line text.
-
----
-
-## No Manual `dark:` Color Overrides
-
-Starwind dark mode is class-based through `.dark`, and component colors come from CSS variables.
-
-**Incorrect:**
-
-```astro
-<main class="bg-white text-slate-950 dark:bg-slate-950 dark:text-slate-50">
-  Content
-</main>
-```
-
-**Correct:**
-
-```astro
-<main class="bg-background text-foreground">
-  Content
-</main>
-```
-
-For global theme changes, edit `:root` and `.dark` variables in the active Starwind CSS file.
-
----
-
-## Use Tailwind Variants For Conditional Classes
-
-For conditional or merged class names, follow Starwind's component pattern and use `tailwind-variants`. Do not assume a `cn()` helper exists in Astro projects.
-
-**Incorrect:**
-
-```astro
-<div class={`flex items-center ${isActive ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
-```
-
-**Correct:**
+Follow the installed source's `tailwind-variants` pattern for reusable conditional styles. Do not
+assume a shadcn-style `cn()` helper exists.
 
 ```ts
 import { tv } from "tailwind-variants";
 
 export const item = tv({
-  base: "flex items-center",
+  base: "flex items-center gap-2 rounded-md",
   variants: {
     active: {
       true: "bg-primary text-primary-foreground",
-      false: "bg-muted",
+      false: "bg-muted text-muted-foreground",
     },
   },
-  defaultVariants: {
-    active: false,
-  },
+  defaultVariants: { active: false },
 });
 ```
 
 ```astro
-<div class={item({ active: isActive })}>
+<div class={item({ active: isActive })}>...</div>
 ```
 
-Use this for reusable variants or component internals. For one-off layout, a plain `class` string is fine.
+Use a plain class string for one-off layout. Add or edit a variant when the state recurs or belongs
+to the component's public styling API.
 
----
+## Public And Internal Selectors
 
-## No Manual Z-Index On Overlays
+Use `data-slot` for public part styling and documented state attributes for stateful styles:
 
-Overlay components manage their own stacking and positioning unless local docs/source show a conflict.
+```css
+[data-slot="combobox-item"][data-highlighted] {
+  /* state styling */
+}
+```
 
-Do not add arbitrary z-index to `Dialog`, `Sheet`, `AlertDialog`, `Dropdown`, `ContextMenu`, `Popover`, `Tooltip`, `HoverCard`, or `SelectContent`.
+Useful state contracts can include `data-state`, `data-open`, `data-closed`, `data-checked`,
+`data-highlighted`, `data-starting-style`, and `data-ending-style`; confirm the exact component
+contract first.
 
-If a stacking bug exists, inspect the installed component source before adding overrides.
+Attributes beginning with `data-sw-*` are primarily Runtime discovery/behavior hooks. Preserve
+them, while preferring public slots/state for application CSS. Legacy `.starwind-*` implementation
+classes are not a stable V3 styling contract.
+
+## Presence, Animation, And Stacking
+
+Runtime-managed overlays observe actual CSS animations and transitions. Define entrance/exit timing
+through Tailwind or CSS and documented presence states. An `animationDuration` prop is not the V3
+synchronization mechanism.
+
+Let Dialog, Sheet, Alert Dialog, Dropdown, Context Menu, Popover, Tooltip, Hover Card, and Select
+content own their stacking. Inspect the installed source and local stacking context before adding a
+manual `z-*` override.
+
+A styling change is complete when it follows the local framework syntax, uses the narrowest public
+styling surface, keeps semantic light/dark behavior, and preserves every Runtime hook in edited
+source.

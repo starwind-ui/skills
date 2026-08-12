@@ -2,18 +2,23 @@
 
 Search current Pro metadata before choosing a block. Do not invent block IDs, slugs, install commands, or plan availability.
 
-Starwind Pro blocks are native Astro components copied into the project. They are designed to be owned and edited locally, with typed props/data, Tailwind CSS v4, dark mode, and container-query-friendly layouts.
+Starwind Pro blocks are native Astro styled components copied into the Starwind UI v3 project. They are designed to be owned and edited locally, with typed props/data, Tailwind CSS v4, dark mode, and container-query-friendly layouts.
 
 ## Search Sources
 
 Use the best available source:
 
-1. MCP `search_starwind_pro_blocks`.
+1. Current MCP `starwind_search` with `framework: "astro"`; use `query`, `category`, `plan`,
+   `limit`, and `offset`, plus `cwd` when local Pro setup matters. Read matches from `proBlocks`.
+   Older MCP installations may expose the narrower `search_starwind_pro_blocks` tool instead.
 2. Block pages on `https://pro.starwind.dev/components/`.
 3. CLI or registry metadata when current and accessible.
 4. Pro docs for setup, theming, dark mode, animation, and troubleshooting.
 
-The MCP returns block IDs, categories, plan type, preview URLs, and install commands. Treat that as the source of truth when available. Use `starwind_add` when you need a package-manager-specific command or an init-plus-add command.
+The MCP returns block IDs, categories, plan type, and preview URLs. Free results use
+`installCommand`; paid results use `deferredInstallCommand` plus `proUpgrade` guidance. Treat that
+metadata as the source of truth when available. Use `starwind_add` when you need a
+package-manager-specific command or an init/setup-plus-add sequence.
 
 ## Search Strategy
 
@@ -75,6 +80,6 @@ After install:
 
 - Use `npx starwind@latest init --pro` for new or uninitialized projects.
 - Use `npx starwind@latest setup` for existing Starwind UI projects.
-- Theme changes belong in `src/styles/starwind.css` unless the user wants block-only customization.
+- Theme changes belong in the active Starwind CSS file named by `starwind.config.json` unless the user wants block-only customization.
 - Dark mode depends on the `.dark` class strategy used by Starwind UI.
 - For scroll-entry animation, use the documented `motion-on-scroll` setup rather than hand-rolling the behavior.
