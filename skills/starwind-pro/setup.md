@@ -1,11 +1,12 @@
 # Starwind Pro Setup
 
-Starwind Pro's public block surface is Astro. Current setup requires Node 22.12+, an Astro project,
-and Starwind UI configuration.
+Starwind Pro blocks are Astro components. Setup and block installs run in every Starwind framework:
+Astro, React, Vue, and Svelte. Outside Astro, use an Astro host or port the block. Setup requires
+Node 22.12+ and Starwind UI configuration.
 
 Before setup, confirm:
 
-- Node 22.12+ and an Astro project with Tailwind CSS 4;
+- Node 22.12+ and a Starwind project with Tailwind CSS 4;
 - the package runner and project root;
 - whether `starwind.config.json` already exists; and
 - `.env.local` can remain ignored and unprinted.
@@ -85,7 +86,7 @@ For authorization failures:
 
 For install failures:
 
-1. Confirm project root, Astro target, package runner, and Node version.
+1. Confirm project root, package runner, and Node version.
 2. Confirm `starwind.config.json` is current and contains Pro configuration.
 3. Run `npx starwind@latest setup` when configuration is missing.
 4. Repeat current Pro search and use the returned install command exactly.

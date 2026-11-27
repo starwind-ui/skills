@@ -12,6 +12,7 @@ initialization.
 - global light/dark theming
 - reusable `tailwind-variants`
 - public selectors, Runtime hooks, and overlay presence
+- RTL and logical utilities
 
 ## Priority
 
@@ -73,7 +74,7 @@ Use the component API instead of rebuilding it at the call site:
 <Button variant="outline" size="sm">Cancel</Button>
 ```
 
-Use `class` in Astro and `className` in React for layout and narrow exceptions such as `max-w-md`,
+Use `class` in Astro, Vue, and Svelte and `className` in React for layout and narrow exceptions such as `max-w-md`,
 `mx-auto`, `mt-4`, grid placement, or a deliberate one-off radius. Do not hide a new visual variant
 inside a long call-site class string.
 
@@ -178,6 +179,86 @@ synchronization mechanism.
 Let Dialog, Sheet, Alert Dialog, Dropdown, Context Menu, Popover, Tooltip, Hover Card, and Select
 content own their stacking. Inspect the installed source and local stacking context before adding a
 manual `z-*` override.
+
+## RTL
+
+Starwind components follow the HTML `dir` attribute in all four frameworks. Set `dir="rtl"` on
+`<html>` for a whole page, or on a container for one section. Children inherit it. Components read
+the `dir` attribute. They do not read the CSS `direction` property.
+
+### Use logical utilities for the reading edge
+
+**Incorrect:** physical padding and margin for the reading edge.
+
+```astro
+<section dir="rtl" class="pl-6">
+  <p class="ml-2 text-left">الإعدادات</p>
+</section>
+```
+
+**Correct:**
+
+```astro
+<section dir="rtl" class="ps-6">
+  <p class="ms-2 text-start">الإعدادات</p>
+</section>
+```
+
+Use `ps-*`, `pe-*`, `ms-*`, `me-*`, `start-*`, `end-*`, and `text-start` for spacing that follows
+the reading edge. A `px-*` override replaces `ps-*` and `pe-*` in component classes only with
+`tailwind-merge` ^3.7.0. `starwind init` and `setup` install that range. `add` and `update` raise
+it when they install a component that changed for RTL.
+
+### Keep LTR content left-to-right
+
+Put `dir="ltr"` on URL inputs, code, and other content that must stay left-to-right inside RTL.
+
+**Incorrect:**
+
+```astro
+<form dir="rtl">
+  <Input type="url" name="website" />
+</form>
+```
+
+**Correct:**
+
+```astro
+<form dir="rtl">
+  <Input type="url" name="website" dir="ltr" />
+</form>
+```
+
+### Change the direction after load
+
+After code changes `dir`, for example in a language switch, send the event on `document`. Starwind
+then updates the components on the page, open popups included.
+
+**Incorrect:** a direction change with no event.
+
+```js
+document.documentElement.dir = "rtl";
+```
+
+**Correct:**
+
+```js
+document.documentElement.dir = "rtl";
+document.dispatchEvent(new Event("starwind:direction-change"));
+```
+
+### Other rules
+
+- `side="left"` and `side="right"` stay physical sides.
+- Remove your own RTL workarounds, such as mirrored transforms on Starwind parts. The components
+  now handle direction.
+- Slider sets `inset-inline-start` on the thumb and indicator. Change CSS or scripts that set
+  `left` on these parts.
+- One level of mixed direction works: an LTR area in an RTL page, or an RTL area in an LTR page.
+  A third level is not supported.
+- An existing stylesheet needs the scoped `rtl` and `ltr` variants only for LTR content inside RTL,
+  or for your own `ltr:` classes inside RTL. See
+  [customization.md](../customization.md#rtl-stylesheet). No Vite config change is necessary.
 
 A styling change is complete when it follows the local framework syntax, uses the narrowest public
 styling surface, keeps semantic light/dark behavior, and preserves every Runtime hook in edited

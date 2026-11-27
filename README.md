@@ -1,11 +1,12 @@
 # Starwind UI Skills
 
-Agent skills for Starwind UI v3 in Astro and React, plus Starwind Pro blocks for Astro.
+Agent skills for Starwind UI v3 in Astro, React, Vue, and Svelte, plus Starwind Pro blocks for Astro.
 
 ## Skills
 
-- `starwind-ui`: initialize or migrate Starwind UI, add and update styled components, choose
-  Primitive or Runtime layers, compose framework-correct UI, and customize Tailwind CSS v4 themes.
+- `starwind-ui`: initialize or migrate Starwind UI, upgrade from the Vue or Svelte beta, add and
+  update styled components (Chart included), choose Primitive or Runtime layers, compose
+  framework-correct UI with RTL support, and customize Tailwind CSS v4 themes.
 - `starwind-pro`: configure Pro support, search free and premium blocks, install exact returned
   commands, and adapt Pro Astro blocks while respecting license boundaries.
 
@@ -25,13 +26,13 @@ The skills prefer current Starwind sources and local project state:
 - Starwind per-page Markdown docs
 - `https://pro.starwind.dev/docs/getting-started/`
 - `https://pro.starwind.dev/components/`
-- `@starwind-ui/mcp` when available
+- Installed package docs in `node_modules/@starwind-ui/<pkg>/docs/` (1.6.0 and newer)
+- `@starwind-ui/mcp` 0.6.0 or newer when available
 - Local config, installed source, framework files, and tests
 
 For Starwind Pro work, prefer current MCP/CLI/Pro metadata. Pro license values belong in environment
 files such as `.env.local`, never committed source.
 
-## Evaluation References
+## Evaluations
 
-`references/shadcn-ui` is a pinned, read-only snapshot of the official shadcn/ui skill used for
-comparison and evaluation. See its `UPSTREAM.md` and `LICENSE.md` for provenance and license.
+`evals/` holds repeatable forward tests for both skills. See [evals/README.md](./evals/README.md).

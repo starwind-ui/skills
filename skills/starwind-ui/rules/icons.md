@@ -38,6 +38,12 @@ export function SearchButton() {
 
 The package above is an example, not a default. Preserve the installed icon system.
 
+## Vue And Svelte
+
+Use the icon package and import shape that the project already uses for Vue or Svelte components.
+Read nearby `.vue` or `.svelte` imports before you add one. Do not import a React icon component
+into a Vue or Svelte file.
+
 ## Do Not Transfer Shadcn Icon Conventions
 
 Starwind styled components commonly size SVG children with selectors such as
@@ -77,7 +83,8 @@ name; decorative SVGs should not introduce a competing label.
 
 ## Checks
 
-- Plain Astro files do not import React-only icon components.
+- Each file imports icons built for its framework. Plain Astro files do not import React-only icon
+  components.
 - Existing package icons are reused instead of duplicating inline SVG.
 - Common SVG children inherit component sizing unless a documented exception is intended.
 - Icon-only controls have an accessible name.

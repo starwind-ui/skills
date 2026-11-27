@@ -1,6 +1,6 @@
 interface:
   display_name: "Starwind UI"
-  short_description: "Builds Starwind UI v3 for Astro and React."
+  short_description: "Builds Starwind UI v3 for Astro, React, Vue, and Svelte."
   icon_small: "./assets/starwind-small.png"
   icon_large: "./assets/starwind.png"
-  default_prompt: "Use $starwind-ui to install, migrate, compose, or theme Starwind UI v3 in my Astro or React project."
+  default_prompt: "Use $starwind-ui to install, migrate, compose, or theme Starwind UI v3 in my Astro, React, Vue, or Svelte project."

@@ -11,7 +11,8 @@ application and customized locally.
 
 ## Rules
 
-- Confirm an Astro target before selecting a Pro block.
+- Pro blocks are Astro components. Setup and installs run in every framework. In a React, Vue, or
+  Svelte project, tell the user, then use an Astro host or port the block.
 - Treat `starwind.config.json` as the V3 authority for framework, component destination, registry,
   Tailwind, and Pro authorization settings.
 - Initialize missing Starwind UI with `starwind init --framework astro --pro`; use

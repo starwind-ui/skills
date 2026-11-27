@@ -10,7 +10,7 @@ Starwind tokens are intentionally familiar to shadcn-style themes, but the targe
 2. Locate the active Starwind CSS file.
 3. Merge values into the existing `:root` and `.dark` blocks.
 4. Preserve Starwind's `@theme inline` mappings.
-5. Preserve Starwind-specific tokens such as `--primary-accent`, `--secondary-accent`, status colors, and sidebar tokens.
+5. Preserve Starwind-specific tokens such as `--primary-accent`, `--secondary-accent`, status colors, sidebar tokens, and chart tokens.
 6. Check foreground/background contrast after migration.
 
 ## Starwind-Only Tokens To Preserve
@@ -26,26 +26,34 @@ the migration intentionally supplies a semantic replacement:
 
 ## Common Mapping
 
-| Source concept       | Starwind token           |
-| -------------------- | ------------------------ |
-| background           | `--background`           |
-| foreground           | `--foreground`           |
-| card                 | `--card`                 |
-| card foreground      | `--card-foreground`      |
-| popover              | `--popover`              |
-| popover foreground   | `--popover-foreground`   |
-| primary              | `--primary`              |
-| primary foreground   | `--primary-foreground`   |
-| secondary            | `--secondary`            |
-| secondary foreground | `--secondary-foreground` |
-| muted                | `--muted`                |
-| muted foreground     | `--muted-foreground`     |
-| accent               | `--accent`               |
-| accent foreground    | `--accent-foreground`    |
-| border               | `--border`               |
-| input                | `--input`                |
-| ring                 | `--outline`              |
-| radius               | `--radius`               |
+| Source concept       | Starwind token             |
+| -------------------- | -------------------------- |
+| background           | `--background`             |
+| foreground           | `--foreground`             |
+| card                 | `--card`                   |
+| card foreground      | `--card-foreground`        |
+| popover              | `--popover`                |
+| popover foreground   | `--popover-foreground`     |
+| primary              | `--primary`                |
+| primary foreground   | `--primary-foreground`     |
+| secondary            | `--secondary`              |
+| secondary foreground | `--secondary-foreground`   |
+| muted                | `--muted`                  |
+| muted foreground     | `--muted-foreground`       |
+| accent               | `--accent`                 |
+| accent foreground    | `--accent-foreground`      |
+| border               | `--border`                 |
+| input                | `--input`                  |
+| ring                 | `--outline`                |
+| radius               | `--radius`                 |
+| chart-1 to chart-5   | `--chart-1` to `--chart-5` |
+
+## Chart Tokens
+
+shadcn `--chart-1` to `--chart-5` map 1:1 to Starwind `--chart-1` to `--chart-5`. Copy the values
+into both `:root` and `.dark`. Keep the five tokens and their `@theme inline` mappings
+(`--color-chart-1` to `--color-chart-5`) even when the source theme has no chart values. Chart
+configs use `var(--chart-N)`.
 
 ## Sidebar Tokens
 
@@ -69,5 +77,5 @@ If the source theme uses HSL channel values or OKLCH values, convert or preserve
 ## Avoid
 
 - Do not paste a whole foreign CSS file over `starwind.css`.
-- Do not remove Starwind's status tokens, sidebar tokens, or `@theme inline` block.
+- Do not remove Starwind's status tokens, sidebar tokens, chart tokens, or `@theme inline` block.
 - Do not rename Starwind tokens to shadcn names if Starwind already has an equivalent.

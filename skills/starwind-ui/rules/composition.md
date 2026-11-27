@@ -16,9 +16,14 @@ current docs define the latest public contract.
 
 - Astro: `class`, `for`, inline browser scripts, and static initial-state props.
 - React: `className`, `htmlFor`, React event handlers, and controlled props/callbacks when needed.
+- Vue: `class`, `for`, `v-model` or `v-model:open`, and `update:*` events.
+- Svelte 5: `class`, `for`, `bind:` props, callback props, and the `child` snippet.
 - Import styled parts from the configured local component directory.
-- Import imperative APIs and detail types from the matching
-  `@starwind-ui/astro/<component>` or `@starwind-ui/react/<component>` package.
+- Import imperative APIs and detail types from the matching `@starwind-ui/<framework>/<component>`
+  package.
+
+See [frameworks.md](./frameworks.md) for import paths, state, and `asChild`.
+
 - Preserve `data-slot` and required `data-sw-*` hooks when editing installed internals.
 
 ## Prefer Existing Components
@@ -122,7 +127,7 @@ Import the imperative API from the matching adapter package, not the local style
 
 ```ts
 import { toast } from "@starwind-ui/astro/toast";
-// React file: import { toast } from "@starwind-ui/react/toast";
+// React, Vue, or Svelte file: import from "@starwind-ui/<framework>/toast".
 
 toast.success("Saved");
 ```
@@ -200,7 +205,8 @@ Keep Tabs and Avatar anatomy complete:
 Also check:
 
 - Give every icon-only button an accessible name.
-- Use `asChild` only where current styled or Primitive docs expose it.
+- Use `asChild` (Astro, React, Vue) or the Svelte `child` snippet only where current styled or
+  Primitive docs expose it.
 - Give Radio items and the Input OTP root explicit accessible names.
 - Use `InputGroupButton` for actions; `InputGroupAddon` is presentational.
 
