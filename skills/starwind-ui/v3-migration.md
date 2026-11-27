@@ -109,9 +109,7 @@ After migration, rerun the recorded format, build, typecheck, and test commands.
 - customized layouts at narrow and wide viewports; and
 - CSS, tests, or analytics that previously queried legacy DOM/classes.
 
-Migration is complete only when the report is fully understood, remaining `source: "legacy"` entries
-are intentional, application integrations use current contracts, and relevant static and browser
-checks pass. Keep the backup until then.
+Keep the backup until these checks pass.
 
 Primary guides:
 

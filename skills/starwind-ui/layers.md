@@ -167,6 +167,3 @@ the docs site when the two differ. Packages before 1.6.0 have no `docs` folder.
   and documented state attributes for app styling.
 - Keep native form participation and Runtime-managed keyboard, focus, dismissal, portal, and
   cleanup behavior when you change local source.
-
-The lower-layer task is complete when the chosen layer is intentional, imports use the matching
-framework package, lifecycle cleanup is handled, and all required Runtime hooks remain intact.

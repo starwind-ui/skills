@@ -197,6 +197,3 @@ For native/simple forms, associate the error explicitly:
 - Give each focusable Radio item and the Input OTP root an explicit accessible name.
 - Test both submit and reset; Runtime controls must produce the expected `FormData` and restore
   initial state.
-
-A form change is complete when keyboard and screen-reader names are coherent, submitted values and
-reset state are correct, and the framework's current controlled/uncontrolled contract is respected.

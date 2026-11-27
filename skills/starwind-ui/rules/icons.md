@@ -94,6 +94,3 @@ name; decorative SVGs should not introduce a competing label.
 - Icon-only controls have an accessible name.
 - Added blocks are adapted to the project's icon library when that can be done without changing
   meaning or behavior.
-
-The icon change is complete when it builds in the file's framework, matches local imports and sizing
-contracts, and every interactive icon has a programmatic name.

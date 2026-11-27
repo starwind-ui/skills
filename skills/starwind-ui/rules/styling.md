@@ -283,7 +283,3 @@ document.dispatchEvent(new Event("starwind:direction-change"));
 - An existing stylesheet needs the scoped `rtl` and `ltr` variants only for LTR content inside RTL,
   or for your own `ltr:` classes inside RTL. See
   [customization.md](../customization.md#rtl-stylesheet). No Vite config change is necessary.
-
-A styling change is complete when it follows the local framework syntax, uses the narrowest public
-styling surface, keeps semantic light/dark behavior, and preserves every Runtime hook in edited
-source.

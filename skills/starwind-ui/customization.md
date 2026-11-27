@@ -377,6 +377,3 @@ Vendored Primitive source has the same ownership risk. Preview it through its ow
 npx starwind@latest primitives update button --dry-run
 npx starwind@latest primitives update button --diff
 ```
-
-A customization is complete when light/dark values remain readable, the theme initializes without a
-wrong-theme flash, local variants still typecheck, and Runtime behavior survives the edit.

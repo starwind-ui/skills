@@ -53,9 +53,6 @@ A legacy `components.json` can contain old Pro registry settings; current setup 
    query, animation, accessibility, and theme behavior.
 8. Run relevant format, typecheck, build, and page/browser checks.
 
-The block task is complete when its source and dependencies are installed in configured locations,
-placeholder content is resolved, imports build, and access requirements are accurately reported.
-
 ## References
 
 - [setup.md](./setup.md): V3 Pro configuration, license boundaries, and troubleshooting

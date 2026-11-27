@@ -257,7 +257,3 @@ Also check:
   Primitive docs expose it.
 - Give Radio items and the Input OTP root explicit accessible names.
 - Use `InputGroupButton` for actions; `InputGroupAddon` is presentational.
-
-The composition is complete when every part is nested under its documented root/group, accessible
-names and native semantics are present, and local exports plus current docs support every prop and
-event used.

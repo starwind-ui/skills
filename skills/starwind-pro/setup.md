@@ -91,7 +91,3 @@ For install failures:
 2. Confirm `starwind.config.json` is current and contains Pro configuration.
 3. Run `npx starwind@latest setup` when configuration is missing.
 4. Repeat current Pro search and use the returned install command exactly.
-
-Setup is complete when config contains the intended Pro authorization reference, the ignored
-environment file exists where required, and a current free or authorized block request resolves
-without exposing a secret.
