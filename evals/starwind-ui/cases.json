@@ -600,6 +600,481 @@
           ]
         ]
       }
+    },
+    {
+      "id": "astro-chart-dashboard",
+      "title": "Build an Astro revenue dashboard with the Chart component",
+      "fixture": "astro-chart-dashboard",
+      "prompt": "Build the revenue dashboard in src/pages/dashboard.astro. Show a card with a bar chart of monthly revenue and expenses from src/charts/revenue.ts, with abbreviated month names on the x axis, US-dollar amounts on the y axis, and a legend. Add the chart config next to the data in src/charts/revenue.ts and use the theme's chart colors. Keep the page server-rendered Astro, use the installed local Starwind components, and do not add packages.",
+      "assertions": [
+        {
+          "type": "contains",
+          "file": "src/pages/dashboard.astro",
+          "pattern": "<ChartContainer\\b",
+          "description": "Uses the Starwind ChartContainer",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/dashboard.astro",
+          "pattern": "<ChartBar\\b",
+          "description": "Draws the series with ChartBar parts",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
+          "file": "src/pages/dashboard.astro",
+          "pattern": "recharts|BarChart|ResponsiveContainer|CartesianGrid|LabelList",
+          "description": "Does not use Recharts markup",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
+          "file": "src/charts/revenue.ts",
+          "pattern": "recharts",
+          "description": "Does not import Recharts in the data file",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
+          "file": "src/pages/dashboard.astro",
+          "pattern": "[fF]ormatter\\s*(=\\{|:)\\s*(async\\s+)?(\\([^)]*\\)\\s*=>|[A-Za-z_$][\\w$]*\\s*=>|function\\b)",
+          "description": "Passes no inline function formatter in Astro",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
+          "file": "src/pages/dashboard.astro",
+          "pattern": "(?:function\\s+([A-Za-z_$][\\w$]*)|(?:const|let|var)\\s+([A-Za-z_$][\\w$]*)\\s*=\\s*(?:async\\s*)?(?:\\([^)]*\\)|[A-Za-z_$][\\w$]*)\\s*=>)[\\s\\S]*[fF]ormatter\\s*(?:=\\{|:)\\s*(?:\\1|\\2)\\s*[},]",
+          "description": "Passes no named function formatter in Astro",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/dashboard.astro",
+          "pattern": "tickFormatter=\\{\\{",
+          "description": "Formats ticks with a ChartFormat object",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/dashboard.astro",
+          "pattern": "currency|USD|prefix:\\s*[\\\"']\\$",
+          "description": "Formats the y axis as US dollars",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/dashboard.astro",
+          "pattern": "<ChartContainer\\b[^>]*aria-label=",
+          "description": "Names the chart with aria-label on ChartContainer",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/dashboard.astro",
+          "pattern": "<ChartXAxis\\b",
+          "description": "Adds an x axis for the months",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/dashboard.astro",
+          "pattern": "<ChartLegend\\b",
+          "description": "Adds a legend",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/dashboard.astro",
+          "pattern": "<Card\\b",
+          "description": "Composes the chart in a Card",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/charts/revenue.ts",
+          "pattern": "var\\(--chart-[1-5]\\)",
+          "description": "Uses theme chart tokens in the config",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/charts/revenue.ts",
+          "pattern": "satisfies ChartConfig|:\\s*ChartConfig\\b",
+          "description": "Types the config as ChartConfig",
+          "weight": 1
+        },
+        {
+          "type": "preserves",
+          "file": "src/charts/revenue.ts",
+          "patterns": [
+            "\\{ month: \\\"January\\\", revenue: 18600, expenses: 12400 \\}"
+          ],
+          "description": "Keeps the existing revenue data",
+          "weight": 1
+        },
+        {
+          "type": "not_contains",
+          "file": "src/pages/dashboard.astro",
+          "pattern": "className=|htmlFor=",
+          "description": "Uses Astro rather than React attribute syntax",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "css_variables_preserved",
+          "file": "src/styles/starwind.css",
+          "description": "Keeps every theme token, chart tokens included",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "tree_unchanged",
+          "path": "src/components/starwind",
+          "description": "Does not rewrite installed components",
+          "weight": 3,
+          "hard": true
+        }
+      ],
+      "scenario_type": "implementation"
+    },
+    {
+      "id": "svelte-profile-dialog",
+      "title": "Build a SvelteKit profile Dialog with bind: and the child snippet",
+      "fixture": "svelte-profile-dialog",
+      "prompt": "Implement src/lib/ProfileDialog.svelte as an edit-profile dialog for this SvelteKit app. The page binds the dialog's open state, so the component must expose a bindable open prop. Render the installed Starwind Button itself as the dialog trigger and as the Cancel action, without a button inside another button. Include the user's avatar with a fallback, a required name field, a bio, and Cancel and Save actions. Use the installed local Starwind components and do not add packages.",
+      "assertions": [
+        {
+          "type": "contains",
+          "file": "src/lib/ProfileDialog.svelte",
+          "pattern": "<Dialog\\b[^>]*bind:open",
+          "description": "Binds the open state on the Dialog root",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/lib/ProfileDialog.svelte",
+          "pattern": "\\$bindable\\(",
+          "description": "Exposes a bindable open prop",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/lib/ProfileDialog.svelte",
+          "pattern": "\\{#snippet child\\(",
+          "description": "Uses the Svelte child snippet for Button triggers",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/lib/ProfileDialog.svelte",
+          "pattern": "<DialogTitle\\b",
+          "description": "Includes an accessible Dialog title",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/lib/ProfileDialog.svelte",
+          "pattern": "<AvatarFallback\\b",
+          "description": "Pairs the avatar with a fallback",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/lib/ProfileDialog.svelte",
+          "pattern": "<DialogClose\\b",
+          "description": "Cancel closes the dialog through DialogClose",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/lib/ProfileDialog.svelte",
+          "pattern": "from [\\\"']\\$lib/starwind/",
+          "description": "Imports styled parts from the SvelteKit $lib folder",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
+          "file": "src/lib/ProfileDialog.svelte",
+          "pattern": "asChild|className=|htmlFor=|@beta",
+          "description": "Uses no React or beta syntax",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
+          "file": "src/lib/ProfileDialog.svelte",
+          "pattern": "export let |on:click",
+          "description": "Uses Svelte 5 props and events",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/lib/ProfileDialog.svelte",
+          "pattern": "required",
+          "description": "Marks the name as required",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/lib/ProfileDialog.svelte",
+          "pattern": "name=",
+          "description": "Keeps native form names",
+          "weight": 1
+        },
+        {
+          "type": "file_unchanged",
+          "file": "src/routes/+page.svelte",
+          "description": "Keeps the parent page binding",
+          "weight": 1
+        },
+        {
+          "type": "tree_unchanged",
+          "path": "src/lib/starwind",
+          "description": "Does not rewrite installed components",
+          "weight": 3,
+          "hard": true
+        }
+      ],
+      "scenario_type": "implementation"
+    },
+    {
+      "id": "rtl-settings",
+      "title": "Make an Astro settings page right-to-left",
+      "fixture": "rtl-settings",
+      "prompt": "This Astro settings page must ship in Arabic. Render src/pages/settings.astro right-to-left by default and keep the website URL field left-to-right. Add a language button that switches the whole page between Arabic (right-to-left) and English (left-to-right) after the page loads, so the Starwind components follow the new direction. Make the page's custom spacing follow the reading edge, remove the old hand-made RTL workaround, and make any stylesheet change that the mixed-direction content needs. Keep it server-rendered Astro with a small browser script for the language button, and do not add packages.",
+      "assertions": [
+        {
+          "type": "contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "\\bdir=(\\\"rtl\\\"|'rtl'|\\{[^}]*[\\\"']rtl[\\\"'])",
+          "description": "Sets right-to-left direction on the page",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "\\bdir=[\\\"']ltr[\\\"']",
+          "description": "Keeps LTR content left-to-right with dir=\"ltr\"",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "<Input\\b[^>]*type=[\\\"']url[\\\"'][^>]*dir=[\\\"']ltr[\\\"']|<Input\\b[^>]*dir=[\\\"']ltr[\\\"'][^>]*type=[\\\"']url[\\\"']",
+          "description": "Puts dir=\"ltr\" on the URL input",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "starwind:direction-change",
+          "description": "Sends starwind:direction-change after a runtime change",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "\\b(pl|pr|ml|mr)-\\d",
+          "description": "Uses no physical reading-edge spacing",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "\\b(ps|pe|ms|me)-\\d",
+          "description": "Uses logical spacing utilities",
+          "weight": 1
+        },
+        {
+          "type": "not_contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "\\btext-(left|right)\\b",
+          "description": "Uses no physical text alignment",
+          "weight": 1
+        },
+        {
+          "type": "not_contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "scaleX\\(-1\\)",
+          "description": "Removes the manual RTL transform workaround",
+          "weight": 2
+        },
+        {
+          "type": "not_contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "className=|htmlFor=",
+          "description": "Uses Astro rather than React attribute syntax",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/styles/starwind.css",
+          "pattern": "@custom-variant rtl \\(&:where\\(\\[dir=\\\"rtl\\\"\\], \\[dir=\\\"rtl\\\"\\] \\*:not\\(",
+          "description": "Adds the scoped rtl variant to the stylesheet",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/styles/starwind.css",
+          "pattern": "@custom-variant ltr \\(&:where\\(:not\\(\\[dir=\\\"rtl\\\"\\], \\[dir=\\\"rtl\\\"\\] \\*:not\\(",
+          "description": "Adds the scoped ltr variant to the stylesheet",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "css_variables_preserved",
+          "file": "src/styles/starwind.css",
+          "description": "Keeps every theme token",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "file_unchanged",
+          "file": "starwind.config.json",
+          "description": "Does not rewrite CLI-owned configuration",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "tree_unchanged",
+          "path": "src/components/starwind",
+          "description": "Does not rewrite installed components",
+          "weight": 3,
+          "hard": true
+        }
+      ],
+      "scenario_type": "implementation"
+    },
+    {
+      "id": "vue-beta-upgrade",
+      "title": "Finish a Vue beta to stable upgrade after the CLI update",
+      "fixture": "vue-beta-upgrade",
+      "prompt": "This Vue project used the Starwind Vue beta. The CLI already ran starwind update --all and starwind primitives update --all, and package.json already has the stable @starwind-ui/vue 1.6.0. Finish the upgrade from the beta: update the remaining dependency ranges, scripts, and setup docs, and fix the application code that still uses APIs the stable release removed. The CLI-owned config and generated component source are current. Do not rerun the CLI or install anything; the user installs after review.",
+      "assertions": [
+        {
+          "type": "not_contains",
+          "file": "package.json",
+          "pattern": "@beta",
+          "description": "Removes every @beta install reference from package.json",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "package.json",
+          "pattern": "\\\"vue\\\":\\s*\\\"(\\^|~|>=\\s*)?3\\.(5\\.(2[1-9]|[3-9]\\d|\\d{3,})|([6-9]|\\d{2,})\\.\\d+)",
+          "description": "Raises Vue to 3.5.21 or newer",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "package.json",
+          "pattern": "\\\"@starwind-ui/vue\\\":\\s*\\\"\\^?1\\.(6|[7-9]|\\d{2,})\\.",
+          "description": "Keeps the stable @starwind-ui/vue range",
+          "weight": 1
+        },
+        {
+          "type": "not_contains",
+          "file": "README.md",
+          "pattern": "@beta",
+          "description": "Removes @beta from the setup docs",
+          "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/components/AccountTabs.vue",
+          "pattern": "Tabs\\.(Root|Tab)\\b",
+          "description": "Keeps the Tabs Primitive in place",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
+          "file": "src/components/AccountTabs.vue",
+          "pattern": "v-slot=\\\"\\{\\s*(active|value)",
+          "description": "Removes the Tabs slot props",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/components/AccountTabs.vue",
+          "pattern": "v-model",
+          "description": "Reads the active tab with v-model",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/components/AccountTabs.vue",
+          "pattern": "data-state|data-\\[state=active\\]",
+          "description": "Styles the active tab with data-state",
+          "weight": 1
+        },
+        {
+          "type": "not_contains",
+          "file": "src/components/DialogStatus.vue",
+          "pattern": "DialogContext",
+          "description": "Removes the DialogContext import",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
+          "file": "src/components/DeleteDialog.vue",
+          "pattern": "DialogContext",
+          "description": "Does not move DialogContext into the dialog",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/components/DeleteDialog.vue",
+          "pattern": "v-model:open",
+          "description": "Reads the dialog state with v-model:open",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "file_unchanged",
+          "file": "starwind.config.json",
+          "description": "Does not rewrite CLI-owned configuration",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "tree_unchanged",
+          "path": "src/components/starwind",
+          "description": "Does not rewrite current generated components",
+          "weight": 3,
+          "hard": true
+        }
+      ],
+      "scenario_type": "post-cli-integration"
     }
   ]
 }

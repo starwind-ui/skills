@@ -1,0 +1,52 @@
+---
+import { ThemeInitScript } from "@starwind-ui/astro/theme";
+import { Button } from "@/components/starwind/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/starwind/card";
+import { Input } from "@/components/starwind/input";
+import { Label } from "@/components/starwind/label";
+import { Switch } from "@/components/starwind/switch";
+import "../styles/starwind.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Delivery settings</title>
+    <ThemeInitScript />
+  </head>
+  <body>
+    <main class="mx-auto flex max-w-xl flex-col gap-6 p-6">
+      <Card>
+        <CardHeader class="pl-6">
+          <CardTitle>Delivery settings</CardTitle>
+          <CardDescription>Choose how we contact you.</CardDescription>
+        </CardHeader>
+        <CardContent class="flex flex-col gap-4">
+          <Switch id="updates" name="updates" label="Email updates" defaultChecked class="settings-switch" />
+          <div class="flex flex-col gap-2">
+            <Label for="website" class="ml-2 text-left">Website</Label>
+            <Input id="website" name="website" type="url" placeholder="https://example.com" />
+          </div>
+        </CardContent>
+        <CardFooter class="justify-end">
+          <Button variant="outline" class="mr-4">Cancel</Button>
+          <Button>Save</Button>
+        </CardFooter>
+      </Card>
+    </main>
+    <style is:global>
+      /* Old manual RTL fix for the switch thumb. */
+      [dir="rtl"] .settings-switch {
+        transform: scaleX(-1);
+      }
+    </style>
+  </body>
+</html>

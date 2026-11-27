@@ -44,5 +44,75 @@
         "textarea"
       ]
     }
+  ],
+  "additional_sources": [
+    {
+      "source": {
+        "repository": "starwind-ui-runtime (private main, pre public sync)",
+        "commit": "2e8b207eccc0538406f83c4ed893f7e02537a0d3"
+      },
+      "copies": [
+        {
+          "fixture": "starwind-ui/astro-chart-dashboard",
+          "from": "apps/demo/src/components/starwind-runtime",
+          "components": [
+            "badge",
+            "card",
+            "chart"
+          ]
+        },
+        {
+          "fixture": "starwind-ui/svelte-profile-dialog",
+          "from": "apps/svelte-demo/src/lib/starwind-runtime",
+          "components": [
+            "avatar",
+            "button",
+            "dialog",
+            "field",
+            "input",
+            "label",
+            "separator",
+            "textarea"
+          ]
+        },
+        {
+          "fixture": "starwind-ui/rtl-settings",
+          "from": "apps/demo/src/components/starwind-runtime",
+          "components": [
+            "button",
+            "card",
+            "input",
+            "label",
+            "switch"
+          ]
+        },
+        {
+          "fixture": "starwind-ui/vue-beta-upgrade",
+          "from": "apps/vue-demo/src/components/starwind-runtime",
+          "components": [
+            "button",
+            "dialog",
+            "tabs"
+          ]
+        }
+      ],
+      "stylesheets": [
+        {
+          "fixtures": [
+            "starwind-ui/astro-chart-dashboard",
+            "starwind-ui/svelte-profile-dialog",
+            "starwind-ui/vue-beta-upgrade"
+          ],
+          "from": "packages/cli/src/templates/starwind.css.ts"
+        },
+        {
+          "fixtures": [
+            "starwind-ui/rtl-settings"
+          ],
+          "from": "packages/cli/src/templates/starwind.css.ts",
+          "note": "The two @custom-variant rtl and ltr lines are removed to model a stylesheet that init kept."
+        }
+      ]
+    }
   ]
 }

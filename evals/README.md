@@ -60,7 +60,31 @@ MCP fixtures set `minimumReleaseAge: 2880` locally to reproduce a two-day policy
 `@starwind-ui/mcp` `dlx` subprocess receives `minimum-release-age=0`; application dependencies stay
 uninstalled and the user's global pnpm configuration is untouched.
 
-`fixtures.json` pins the upstream revision used for copied installed-component source.
+`fixtures.json` pins the upstream revision for each copy of installed-component source. The first
+source is the public `starwind-ui` repository. `additional_sources` lists copies from the private
+`starwind-ui-runtime` main branch, taken before the public 3.7 sync.
+
+## Cases
+
+`starwind-ui`:
+
+- `astro-settings-form`: accessible Astro settings form with Field, Switch, and a busy Save state.
+- `react-profile-combobox`: React profile Dialog with a standalone Combobox.
+- `theme-customization`: semantic token rebrand that keeps every unrelated token.
+- `astro-v3-post-migration`: application integration after the V3 migration command.
+- `astro-v3-migration-cli`: run and review the offline V3 migration command.
+- `astro-chart-dashboard`: Astro revenue dashboard with Chart parts, format objects, chart tokens,
+  and an accessible name.
+- `svelte-profile-dialog`: SvelteKit profile Dialog with `bind:open`, the `child` snippet, and
+  `$lib/starwind` imports.
+- `rtl-settings`: Astro settings page in RTL with a URL input in LTR, a runtime language switch,
+  logical spacing, and the scoped stylesheet variants.
+- `vue-beta-upgrade`: finish a Vue beta upgrade after the CLI update: Vue range, `@beta` removal,
+  removed Tabs slot props, and removed `DialogContext`.
+
+`starwind-pro`: `pro-block-adaptation`, `pro-setup-workflow`.
+
+`starwind-mcp`: `mcp-migration-preview`, `mcp-react-primitive`, `mcp-pro-result-routing`.
 
 ## Repeatable workflow
 
@@ -114,6 +138,11 @@ not install or update dependencies. Scoring then runs each case's checked-in val
 
 Run the same case and model in separate batches when comparing `static` and `integration`; the tier
 is recorded in metadata and the report table.
+
+`astro-chart-dashboard`, `svelte-profile-dialog`, `rtl-settings`, and `vue-beta-upgrade` are static
+only. They need the 1.6.0 Starwind packages, which were not on npm when the cases were written, so
+they have no lockfile. `prepare --case all --tier integration` stops at the first of these cases.
+Prepare integration runs by case ID until these fixtures get lockfiles.
 
 ## Fair comparisons
 

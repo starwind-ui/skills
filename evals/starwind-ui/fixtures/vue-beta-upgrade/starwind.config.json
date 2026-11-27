@@ -1,0 +1,30 @@
+{
+  "$schema": "https://starwind.dev/config-schema.v2.json",
+  "version": 2,
+  "framework": "vue",
+  "componentDir": "src/components/starwind",
+  "tailwind": {
+    "css": "src/styles.css"
+  },
+  "registry": {
+    "source": "bundled",
+    "version": "2.2.0"
+  },
+  "components": [
+    {
+      "framework": "vue",
+      "name": "button",
+      "version": "3.0.4"
+    },
+    {
+      "framework": "vue",
+      "name": "dialog",
+      "version": "2.2.0"
+    },
+    {
+      "framework": "vue",
+      "name": "tabs",
+      "version": "2.3.0"
+    }
+  ]
+}
