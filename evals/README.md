@@ -86,6 +86,33 @@ source is the public `starwind-ui` repository. `additional_sources` lists copies
 
 `starwind-mcp`: `mcp-migration-preview`, `mcp-react-primitive`, `mcp-pro-result-routing`.
 
+## Assertion types
+
+Each assertion in `cases.json` has a `type`, a `description`, a `weight`, and an optional `hard`
+flag. `file` and `files` paths are relative to the agent workspace. With `"evidence": true`, they
+are relative to the evidence folder. `pattern` is a JavaScript regular expression with the `m`
+flag. A leading `(?i)` makes it ignore case.
+
+| Type                      | Passes when                                                                                     |
+| ------------------------- | ----------------------------------------------------------------------------------------------- |
+| `file_exists`             | `file` exists.                                                                                  |
+| `non_empty_file`          | `file` exists and has text other than whitespace.                                               |
+| `file_not_exists`         | `file` does not exist.                                                                          |
+| `contains`                | `file` exists and matches `pattern`.                                                            |
+| `not_contains`            | `file` does not match `pattern`. A missing file passes.                                         |
+| `contains_any`            | At least one path in the `files` array exists and matches `pattern`. `files` must be an array.  |
+| `json_equals`             | The value at the dotted `path` in the JSON `file` equals `value`.                               |
+| `json_array_some`         | The JSON `file` is an array with an item whose dotted keys equal every entry in `matches`.      |
+| `mcp_server_version`      | Every recorded MCP call used the package and version pinned in `package_file`.                  |
+| `css_variables_preserved` | `file` keeps every custom property declaration of the fixture file, except the `mutable` names. |
+| `preserves`               | For each regex in `patterns`, the text it matches in the fixture file is still in `file`.       |
+| `no_nested_tag`           | `file` exists and its markup has no `tag` element inside another `tag` element.                 |
+| `control_names`           | `file` has a `component` element whose `name` includes each entry in `names`.                   |
+| `file_unchanged`          | `file` is the same as in the fixture.                                                           |
+| `tree_unchanged`          | The folder at `path` has the same files and contents as in the fixture.                         |
+
+Scoring always adds a hard `non_empty_file` check for `RESULT.md`.
+
 ## Repeatable workflow
 
 ```bash

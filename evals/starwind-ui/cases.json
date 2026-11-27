@@ -657,16 +657,32 @@
         },
         {
           "type": "not_contains",
+          "file": "src/pages/dashboard.astro",
+          "pattern": "[fF]ormatter\\s*=\\{(?!\\s*\\{)(?!\\s*[A-Za-z_$][\\w$]*(?:\\.[A-Za-z_$][\\w$]*)*\\s*\\})",
+          "description": "Formatter props are object literals or object constants",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
+          "file": "src/pages/dashboard.astro",
+          "pattern": "[fF]ormatter\\s*(?:=\\{|:)\\s*([A-Za-z_$][\\w$]*)(?:\\.[A-Za-z_$][\\w$]*)*\\s*(?=[},])(?<!\\b(?:const|let|var)\\s+\\1\\s*(?::[^=]+)?=\\s*\\{[\\s\\S]*)(?<!import\\s*(?:type\\s*)?\\{[^}]*\\b\\1\\b[^}]*\\}\\s*from\\s*[\\\"'][^\\\"']*charts/revenue(?:\\.[jt]s)?[\\\"'][\\s\\S]*)",
+          "description": "Formatter constants are declared as objects in the page or imported from the data file",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
           "file": "src/charts/revenue.ts",
-          "pattern": "=>|\\bfunction\\b",
-          "description": "Defines no functions in the chart data file",
+          "pattern": "=>|\\bfunction\\b|\\bnew\\s+Intl\\b|\\.format\\b",
+          "description": "Defines no functions or Intl formatters in the chart data file",
           "weight": 2,
           "hard": true
         },
         {
           "type": "not_contains",
           "file": "src/pages/dashboard.astro",
-          "pattern": "from\\s+[\\\"'](?!@/components/starwind/|@/layouts/|@/charts/revenue(?:\\.ts)?[\\\"']|\\.\\./components/starwind/|\\.\\./layouts/|\\.\\./charts/revenue(?:\\.ts)?[\\\"'])(?:@/|\\.{1,2}/)",
+          "pattern": "from\\s+[\\\"'](?!@/components/starwind/|@/layouts/|@/charts/revenue(?:\\.[jt]s)?[\\\"']|\\.\\./components/starwind/|\\.\\./layouts/|\\.\\./charts/revenue(?:\\.[jt]s)?[\\\"'])(?:@/|\\.{1,2}/)",
           "description": "Imports no other local module that could hold a formatter",
           "weight": 2,
           "hard": true
@@ -709,17 +725,23 @@
           "hard": true
         },
         {
-          "type": "contains",
-          "file": "src/pages/dashboard.astro",
-          "pattern": "dataKey=[\\\"']revenue[\\\"']",
+          "type": "contains_any",
+          "files": [
+            "src/pages/dashboard.astro",
+            "src/charts/revenue.ts"
+          ],
+          "pattern": "[\\\"']revenue[\\\"']",
           "description": "Draws the revenue series",
           "weight": 2,
           "hard": true
         },
         {
-          "type": "contains",
-          "file": "src/pages/dashboard.astro",
-          "pattern": "dataKey=[\\\"']expenses[\\\"']",
+          "type": "contains_any",
+          "files": [
+            "src/pages/dashboard.astro",
+            "src/charts/revenue.ts"
+          ],
+          "pattern": "[\\\"']expenses[\\\"']",
           "description": "Draws the expenses series",
           "weight": 2,
           "hard": true
@@ -812,7 +834,7 @@
         {
           "type": "contains",
           "file": "src/lib/ProfileDialog.svelte",
-          "pattern": "<DialogTrigger\\b(?:[^>]|=>)*?>\\s*\\{#snippet child\\(\\{[^}]*\\bprops\\b[^}]*\\}\\)\\}\\s*<Button\\b(?:[^>]|=>)*?\\{\\.\\.\\.props\\}",
+          "pattern": "<DialogTrigger\\b(?:[^>]|=>)*?>\\s*\\{#snippet child\\(\\{[^}]*\\bprops\\b[^}]*\\}(?:\\s*:[\\s\\S]*?)?\\)\\}\\s*<Button\\b(?:[^>]|=>)*?\\{\\.\\.\\.props\\}",
           "description": "Renders the trigger as Button through the child snippet",
           "weight": 3,
           "hard": true
@@ -844,7 +866,7 @@
         {
           "type": "contains",
           "file": "src/lib/ProfileDialog.svelte",
-          "pattern": "<DialogClose\\b(?:[^>]|=>)*?>\\s*\\{#snippet child\\(\\{[^}]*\\bprops\\b[^}]*\\}\\)\\}\\s*<Button\\b(?:[^>]|=>)*?\\{\\.\\.\\.props\\}|<Button\\b(?:[^>]|=>)*?onclick=\\{\\s*\\(\\)\\s*=>\\s*\\{?\\s*\\(?\\s*open\\s*=\\s*false",
+          "pattern": "<DialogClose\\b(?:[^>]|=>)*?>\\s*\\{#snippet child\\(\\{[^}]*\\bprops\\b[^}]*\\}(?:\\s*:[\\s\\S]*?)?\\)\\}\\s*<Button\\b(?:[^>]|=>)*?\\{\\.\\.\\.props\\}|<Button\\b(?:[^>]|=>)*?onclick=\\{\\s*\\(\\)\\s*=>\\s*\\{?\\s*\\(?\\s*open\\s*=\\s*false|<Button\\b(?:[^>]|=>)*?onclick=\\{\\s*([A-Za-z_$][\\w$]*)\\s*\\}(?<=(?:function\\s+\\1\\s*\\([^)]*\\)\\s*\\{|(?:const|let)\\s+\\1\\s*=\\s*\\([^)]*\\)\\s*=>)[^}]*?\\bopen\\s*=\\s*false[\\s\\S]*)",
           "description": "Cancel is a Button that closes the dialog",
           "weight": 2,
           "hard": true
@@ -941,8 +963,24 @@
         {
           "type": "contains",
           "file": "src/pages/settings.astro",
-          "pattern": "(addEventListener\\(\\s*[\\\"']click[\\\"']|\\.onclick\\s*=)[\\s\\S]*?(\\.dir\\s*=|setAttribute\\(\\s*[\\\"']dir[\\\"'])[\\s\\S]*?document\\.dispatchEvent\\(\\s*new\\s+(Custom)?Event\\(\\s*[\\\"']starwind:direction-change[\\\"']",
-          "description": "A click handler changes dir, then sends starwind:direction-change on document",
+          "pattern": "addEventListener\\(\\s*[\\\"']click[\\\"']|\\.onclick\\s*=|\\bonclick=",
+          "description": "Adds a click handler for the language button",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "\\.dir\\s*=(?!=)|setAttribute\\(\\s*[\\\"']dir[\\\"']",
+          "description": "Changes the dir attribute at runtime",
+          "weight": 1,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/settings.astro",
+          "pattern": "document\\.dispatchEvent\\(\\s*new\\s+(Custom)?Event\\(\\s*[\\\"']starwind:direction-change[\\\"']",
+          "description": "Sends starwind:direction-change on document",
           "weight": 3,
           "hard": true
         },
@@ -1069,7 +1107,7 @@
         {
           "type": "not_contains",
           "file": "src/components/AccountTabs.vue",
-          "pattern": "(v-slot(:default)?|#default)=[\\\"']\\{\\s*(active|value|orientation)",
+          "pattern": "(?:v-slot(?::default)?|#default)=[\\\"'](?:\\{\\s*(?:active|value|orientation)|([A-Za-z_$][\\w$]*)[\\\"'][\\s\\S]*?\\b\\1\\.(?:active|value|orientation)\\b)",
           "description": "Removes the Tabs slot props",
           "weight": 3,
           "hard": true
@@ -1077,8 +1115,8 @@
         {
           "type": "contains",
           "file": "src/components/AccountTabs.vue",
-          "pattern": "v-model\\b|(@|v-on:)update:(model-value|modelValue)\\b",
-          "description": "Reads the active tab with v-model or update:modelValue",
+          "pattern": "v-model\\b|(@|v-on:)(update:(model-value|modelValue)|value-change|valueChange)\\b",
+          "description": "Reads the active tab with v-model, update:modelValue, or valueChange",
           "weight": 2,
           "hard": true
         },
@@ -1108,8 +1146,8 @@
         {
           "type": "contains",
           "file": "src/components/DeleteDialog.vue",
-          "pattern": "v-model:open\\b|(?<!update):open=[\\s\\S]*(@|v-on:)update:open\\b|(@|v-on:)update:open\\b[\\s\\S]*(?<!update):open=",
-          "description": "Reads the dialog state with v-model:open or :open and update:open",
+          "pattern": "v-model:open\\b|(?<!update):open=[\\s\\S]*(@|v-on:)(update:open|open-change|openChange)\\b|(@|v-on:)(update:open|open-change|openChange)\\b[\\s\\S]*(?<!update):open=",
+          "description": "Reads the dialog state with v-model:open, or :open with update:open or openChange",
           "weight": 2,
           "hard": true
         },
@@ -1119,7 +1157,7 @@
             "src/components/DialogStatus.vue",
             "src/components/DeleteDialog.vue"
           ],
-          "pattern": "\\{\\{[^}]*\\bopen\\b[^}]*\\}\\}",
+          "pattern": "\\{\\{[^}]*\\bopen\\b[^}]*\\}\\}|\\{\\{\\s*([A-Za-z_$][\\w$]*)\\s*\\}\\}(?<=\\b(?:const|let)\\s+\\1\\s*=\\s*computed\\([^;]*\\bopen\\b[\\s\\S]*)",
           "description": "Still renders a status that reads the dialog open state",
           "weight": 2,
           "hard": true

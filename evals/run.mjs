@@ -400,9 +400,12 @@ async function evaluate(assertion, workspace, fixtureRoot, evidenceDir) {
       passed = exists && content === baseline;
     } catch {}
   } else if (assertion.type === "contains_any") {
+    if (!Array.isArray(assertion.files)) {
+      throw new Error("contains_any assertion needs a files array: " + assertion.description);
+    }
     for (const file of assertion.files) {
       try {
-        const text = await readFile(path.join(workspace, file), "utf8");
+        const text = await readFile(path.join(assertion.evidence ? evidenceDir : workspace, file), "utf8");
         if (assertionRegExp(assertion.pattern, assertion.flags).test(text)) {
           passed = true;
           break;
