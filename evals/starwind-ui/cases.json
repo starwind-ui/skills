@@ -642,7 +642,7 @@
         {
           "type": "not_contains",
           "file": "src/pages/dashboard.astro",
-          "pattern": "[fF]ormatter\\s*(=\\{|:)\\s*(async\\s+)?(\\([^)]*\\)\\s*=>|[A-Za-z_$][\\w$]*\\s*=>|function\\b)",
+          "pattern": "[fF]ormatter\\s*(=\\{|:)\\s*(async\\s+)?(\\([^)]*\\)\\s*(?::\\s*[^=]+)?=>|[A-Za-z_$][\\w$]*\\s*=>|function\\b)",
           "description": "Passes no inline function formatter in Astro",
           "weight": 3,
           "hard": true
@@ -650,9 +650,25 @@
         {
           "type": "not_contains",
           "file": "src/pages/dashboard.astro",
-          "pattern": "(?:function\\s+([A-Za-z_$][\\w$]*)|(?:const|let|var)\\s+([A-Za-z_$][\\w$]*)\\s*=\\s*(?:async\\s*)?(?:\\([^)]*\\)|[A-Za-z_$][\\w$]*)\\s*=>)[\\s\\S]*[fF]ormatter\\s*(?:=\\{|:)\\s*(?:\\1|\\2)\\s*[},]",
+          "pattern": "(?:function\\s+([A-Za-z_$][\\w$]*)|(?:const|let|var)\\s+([A-Za-z_$][\\w$]*)\\s*(?::[^=]+)?=\\s*(?:async\\s*)?(?:\\([^)]*\\)\\s*(?::\\s*[^=]+)?=>|[A-Za-z_$][\\w$]*\\s*=>))[\\s\\S]*[fF]ormatter\\s*(?:=\\{|:)\\s*(?:\\1|\\2)\\s*[},]",
           "description": "Passes no named function formatter in Astro",
           "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
+          "file": "src/charts/revenue.ts",
+          "pattern": "=>|\\bfunction\\b",
+          "description": "Defines no functions in the chart data file",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
+          "file": "src/pages/dashboard.astro",
+          "pattern": "from\\s+[\\\"'](?!@/components/starwind/|@/layouts/|@/charts/revenue(?:\\.ts)?[\\\"']|\\.\\./components/starwind/|\\.\\./layouts/|\\.\\./charts/revenue(?:\\.ts)?[\\\"'])(?:@/|\\.{1,2}/)",
+          "description": "Imports no other local module that could hold a formatter",
+          "weight": 2,
           "hard": true
         },
         {
@@ -683,6 +699,30 @@
           "pattern": "<ChartXAxis\\b",
           "description": "Adds an x axis for the months",
           "weight": 1
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/dashboard.astro",
+          "pattern": "<ChartYAxis\\b",
+          "description": "Adds a y axis for the amounts",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/dashboard.astro",
+          "pattern": "dataKey=[\\\"']revenue[\\\"']",
+          "description": "Draws the revenue series",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains",
+          "file": "src/pages/dashboard.astro",
+          "pattern": "dataKey=[\\\"']expenses[\\\"']",
+          "description": "Draws the expenses series",
+          "weight": 2,
+          "hard": true
         },
         {
           "type": "contains",
@@ -756,8 +796,8 @@
         {
           "type": "contains",
           "file": "src/lib/ProfileDialog.svelte",
-          "pattern": "<Dialog\\b[^>]*bind:open",
-          "description": "Binds the open state on the Dialog root",
+          "pattern": "<Dialog\\b(?:[^>]|=>)*?(bind:open\\b|onOpenChange=)",
+          "description": "Controls the Dialog with bind:open or open and onOpenChange",
           "weight": 2,
           "hard": true
         },
@@ -772,8 +812,16 @@
         {
           "type": "contains",
           "file": "src/lib/ProfileDialog.svelte",
-          "pattern": "\\{#snippet child\\(",
-          "description": "Uses the Svelte child snippet for Button triggers",
+          "pattern": "<DialogTrigger\\b(?:[^>]|=>)*?>\\s*\\{#snippet child\\(\\{[^}]*\\bprops\\b[^}]*\\}\\)\\}\\s*<Button\\b(?:[^>]|=>)*?\\{\\.\\.\\.props\\}",
+          "description": "Renders the trigger as Button through the child snippet",
+          "weight": 3,
+          "hard": true
+        },
+        {
+          "type": "not_contains",
+          "file": "src/lib/ProfileDialog.svelte",
+          "pattern": "<Dialog(Trigger|Close)\\b(?:[^>]|=>)*?>\\s*<Button\\b",
+          "description": "Does not nest a Button inside the trigger or close button",
           "weight": 3,
           "hard": true
         },
@@ -796,8 +844,8 @@
         {
           "type": "contains",
           "file": "src/lib/ProfileDialog.svelte",
-          "pattern": "<DialogClose\\b",
-          "description": "Cancel closes the dialog through DialogClose",
+          "pattern": "<DialogClose\\b(?:[^>]|=>)*?>\\s*\\{#snippet child\\(\\{[^}]*\\bprops\\b[^}]*\\}\\)\\}\\s*<Button\\b(?:[^>]|=>)*?\\{\\.\\.\\.props\\}|<Button\\b(?:[^>]|=>)*?onclick=\\{\\s*\\(\\)\\s*=>\\s*\\{?\\s*\\(?\\s*open\\s*=\\s*false",
+          "description": "Cancel is a Button that closes the dialog",
           "weight": 2,
           "hard": true
         },
@@ -870,7 +918,7 @@
         {
           "type": "contains",
           "file": "src/pages/settings.astro",
-          "pattern": "\\bdir=(\\\"rtl\\\"|'rtl'|\\{[^}]*[\\\"']rtl[\\\"'])",
+          "pattern": "\\bdir=(\\\"rtl\\\"|'rtl'|\\{[^}]*[\\\"']rtl[\\\"'][^}]*\\}|\\{\\s*[A-Za-z_$][\\w$.]*\\s*\\})",
           "description": "Sets right-to-left direction on the page",
           "weight": 2,
           "hard": true
@@ -893,8 +941,8 @@
         {
           "type": "contains",
           "file": "src/pages/settings.astro",
-          "pattern": "starwind:direction-change",
-          "description": "Sends starwind:direction-change after a runtime change",
+          "pattern": "(addEventListener\\(\\s*[\\\"']click[\\\"']|\\.onclick\\s*=)[\\s\\S]*?(\\.dir\\s*=|setAttribute\\(\\s*[\\\"']dir[\\\"'])[\\s\\S]*?document\\.dispatchEvent\\(\\s*new\\s+(Custom)?Event\\(\\s*[\\\"']starwind:direction-change[\\\"']",
+          "description": "A click handler changes dir, then sends starwind:direction-change on document",
           "weight": 3,
           "hard": true
         },
@@ -938,16 +986,16 @@
         {
           "type": "contains",
           "file": "src/styles/starwind.css",
-          "pattern": "@custom-variant rtl \\(&:where\\(\\[dir=\\\"rtl\\\"\\], \\[dir=\\\"rtl\\\"\\] \\*:not\\(",
-          "description": "Adds the scoped rtl variant to the stylesheet",
+          "pattern": "@custom\\-variant\\s*rtl\\s*\\(\\s*\\&:where\\(\\s*\\[dir=[\"']?rtl[\"']?\\],\\s*\\s*\\[dir=[\"']?rtl[\"']?\\]\\s*\\*:not\\(\\s*\\[dir=[\"']?rtl[\"']?\\]\\s*\\[dir=[\"']?ltr[\"']?\\],\\s*\\s*\\[dir=[\"']?rtl[\"']?\\]\\s*\\[dir=[\"']?ltr[\"']?\\]\\s*\\*\\s*\\)\\s*\\)\\s*\\)\\s*;",
+          "description": "Adds the complete scoped rtl variant to the stylesheet",
           "weight": 2,
           "hard": true
         },
         {
           "type": "contains",
           "file": "src/styles/starwind.css",
-          "pattern": "@custom-variant ltr \\(&:where\\(:not\\(\\[dir=\\\"rtl\\\"\\], \\[dir=\\\"rtl\\\"\\] \\*:not\\(",
-          "description": "Adds the scoped ltr variant to the stylesheet",
+          "pattern": "@custom\\-variant\\s*ltr\\s*\\(\\s*\\&:where\\(\\s*:not\\(\\s*\\[dir=[\"']?rtl[\"']?\\],\\s*\\s*\\[dir=[\"']?rtl[\"']?\\]\\s*\\*:not\\(\\s*\\[dir=[\"']?rtl[\"']?\\]\\s*\\[dir=[\"']?ltr[\"']?\\],\\s*\\s*\\[dir=[\"']?rtl[\"']?\\]\\s*\\[dir=[\"']?ltr[\"']?\\]\\s*\\*\\s*\\)\\s*\\)\\s*\\)\\s*\\)\\s*;",
+          "description": "Adds the complete scoped ltr variant to the stylesheet",
           "weight": 2,
           "hard": true
         },
@@ -1021,7 +1069,7 @@
         {
           "type": "not_contains",
           "file": "src/components/AccountTabs.vue",
-          "pattern": "v-slot=\\\"\\{\\s*(active|value)",
+          "pattern": "(v-slot(:default)?|#default)=[\\\"']\\{\\s*(active|value|orientation)",
           "description": "Removes the Tabs slot props",
           "weight": 3,
           "hard": true
@@ -1029,8 +1077,8 @@
         {
           "type": "contains",
           "file": "src/components/AccountTabs.vue",
-          "pattern": "v-model",
-          "description": "Reads the active tab with v-model",
+          "pattern": "v-model\\b|(@|v-on:)update:(model-value|modelValue)\\b",
+          "description": "Reads the active tab with v-model or update:modelValue",
           "weight": 2,
           "hard": true
         },
@@ -1060,8 +1108,19 @@
         {
           "type": "contains",
           "file": "src/components/DeleteDialog.vue",
-          "pattern": "v-model:open",
-          "description": "Reads the dialog state with v-model:open",
+          "pattern": "v-model:open\\b|(?<!update):open=[\\s\\S]*(@|v-on:)update:open\\b|(@|v-on:)update:open\\b[\\s\\S]*(?<!update):open=",
+          "description": "Reads the dialog state with v-model:open or :open and update:open",
+          "weight": 2,
+          "hard": true
+        },
+        {
+          "type": "contains_any",
+          "files": [
+            "src/components/DialogStatus.vue",
+            "src/components/DeleteDialog.vue"
+          ],
+          "pattern": "\\{\\{[^}]*\\bopen\\b[^}]*\\}\\}",
+          "description": "Still renders a status that reads the dialog open state",
           "weight": 2,
           "hard": true
         },
