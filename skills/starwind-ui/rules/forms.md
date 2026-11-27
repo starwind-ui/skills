@@ -147,7 +147,25 @@ Use Input Group for prefix/suffix text, icons, buttons, or textarea addons:
 </InputGroup>
 ```
 
-- Use `InputGroupInput` or `InputGroupTextarea`, not raw Input/Textarea, inside the group.
+**Incorrect:** a raw `Input` inside the group.
+
+```astro
+<InputGroup>
+  <InputGroupAddon align="inline-start"><InputGroupText>https://</InputGroupText></InputGroupAddon>
+  <Input id="site" name="site" />
+</InputGroup>
+```
+
+**Correct:**
+
+```astro
+<InputGroup>
+  <InputGroupAddon align="inline-start"><InputGroupText>https://</InputGroupText></InputGroupAddon>
+  <InputGroupInput id="site" name="site" />
+</InputGroup>
+```
+
+- Use `InputGroupInput` or `InputGroupTextarea` inside the group.
 - Supported addon alignments are `inline-start`, `inline-end`, `block-start`, and `block-end`.
 - Use `InputGroupAddon` for presentational icons/text and `InputGroupButton` for actions.
 - Keep children in a logical reading order; the alignment variant controls visual placement.

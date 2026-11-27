@@ -1,7 +1,7 @@
 # Migrating Legacy Astro Projects To Starwind UI v3
 
 Use this runbook only for a pre-Runtime Astro project with the legacy copied-component config.
-React, Vue, and Svelte are V3 targets, not inputs to `starwind migrate`. For a project on the Vue or
+`starwind migrate` does not take React, Vue, or Svelte projects. For a project on the Vue or
 Svelte beta, use [beta-upgrade.md](./beta-upgrade.md).
 
 ## Contents

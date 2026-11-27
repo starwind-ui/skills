@@ -50,14 +50,18 @@ Starwind styled components commonly size SVG children with selectors such as
 `[&_svg:not([class*='size-'])]`. Let that contract size ordinary Button, Badge, Toggle, Input Group,
 and menu icons.
 
+**Incorrect:** copied shadcn metadata plus an unnecessary size override.
+
 ```astro
-<!-- Incorrect: copied shadcn metadata plus an unnecessary size override. -->
 <Button>
   <Search data-icon="inline-start" class="size-4" />
   Search
 </Button>
+```
 
-<!-- Correct: Starwind's component variant owns the ordinary icon size. -->
+**Correct:** the Starwind component variant sets the icon size.
+
+```astro
 <Button>
   <Search />
   Search

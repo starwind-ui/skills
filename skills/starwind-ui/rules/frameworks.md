@@ -131,13 +131,13 @@ show each Primitive in that framework's syntax (1.6.0+).
 
 ## Controlled state: `v-model` and `bind:`
 
-Vue uses `v-model` and named models such as `v-model:open`. Svelte uses `bind:` props. Do not copy
-the React `open` plus `onOpenChange` pair into these frameworks.
+Vue uses `v-model` and named models such as `v-model:open`. Svelte uses `bind:` props. Use these as
+the normal way to control state. Do not copy React state code into these frameworks.
 
-**Incorrect (Vue):**
+**Incorrect (Vue):** JSX props in a Vue template.
 
 ```vue
-<Dialog :open="open" @openChange="(next) => (open = next)">
+<Dialog open="{open}" onOpenChange="{setOpen}">...</Dialog>
 ```
 
 **Correct (Vue):**
@@ -154,10 +154,14 @@ const open = ref(false);
 </template>
 ```
 
-**Incorrect (Svelte):**
+**Incorrect (Svelte):** React state in a Svelte component.
 
 ```svelte
-<Dialog open={open} onOpenChange={(next) => (open = next)}>
+<script lang="ts">
+  const [open, setOpen] = useState(false);
+</script>
+
+<Dialog open={open} onOpenChange={setOpen}>...</Dialog>
 ```
 
 **Correct (Svelte):**
@@ -170,9 +174,9 @@ const open = ref(false);
 <Dialog bind:open>...</Dialog>
 ```
 
-Svelte callback props such as `onOpenChange(next, detail)` stay available when you need the change
-details. Astro markup is static after render. Use `defaultChecked`, `defaultValue`, and Runtime
-events there.
+When you need the change details, Vue `@openChange` and Svelte callback props such as
+`onOpenChange(next, detail)` are also available. Astro markup is static after render. Use
+`defaultChecked`, `defaultValue`, and Runtime events there.
 
 ---
 
@@ -208,12 +212,26 @@ snippet. The snippet gets `props` and `children`. Spread `props` on the element 
 </DialogTrigger>
 ```
 
-**Correct (Astro, React, Vue):**
+**Correct (Astro, React):**
 
 ```astro
 <DialogTrigger asChild>
   <Button>Edit profile</Button>
 </DialogTrigger>
+```
+
+**Correct (Vue):** the documented Vue shape is a native element with the Button variant classes.
+
+```vue
+<script setup lang="ts">
+import { ButtonVariants } from "@/components/starwind/button";
+</script>
+
+<template>
+  <DialogTrigger asChild>
+    <button type="button" :class="ButtonVariants.button({})">Edit profile</button>
+  </DialogTrigger>
+</template>
 ```
 
 Use `asChild` or `child` only on parts whose docs or local source accept it.

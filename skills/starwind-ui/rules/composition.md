@@ -58,11 +58,15 @@ Use the group part when the component provides one:
 
 Avoid loose items:
 
-```astro
-<!-- Incorrect -->
-<SelectContent><SelectItem value="astro">Astro</SelectItem></SelectContent>
+**Incorrect:**
 
-<!-- Correct -->
+```astro
+<SelectContent><SelectItem value="astro">Astro</SelectItem></SelectContent>
+```
+
+**Correct:**
+
+```astro
 <SelectContent>
   <SelectGroup><SelectItem value="astro">Astro</SelectItem></SelectGroup>
 </SelectContent>
@@ -148,7 +152,18 @@ Confirm current `Toaster` props and toast methods from docs or package types.
 | Short helper text          | `tooltip`      |
 
 Dialog, Sheet, and Alert Dialog require their documented title part. Keep a title in the accessible
-tree even when the design does not show one:
+tree even when the design does not show one.
+
+**Incorrect:** a dialog with no title.
+
+```astro
+<DialogContent>
+  <p>Edit profile</p>
+  <!-- content -->
+</DialogContent>
+```
+
+**Correct:**
 
 ```astro
 <DialogContent>
@@ -182,20 +197,53 @@ Use Card parts rather than recreating a generic bordered panel:
 </Card>
 ```
 
-Button has no assumed `isLoading` or `isPending` prop:
+Button has no `isLoading` or `isPending` prop.
+
+**Incorrect:**
+
+```astro
+<Button isLoading>Save</Button>
+```
+
+**Correct:**
 
 ```astro
 <Button disabled aria-busy="true"><Spinner /> Saving...</Button>
 ```
 
-Keep Tabs and Avatar anatomy complete:
+Keep Tabs anatomy complete. `TabsTrigger` goes inside `TabsList`.
+
+**Incorrect:**
+
+```astro
+<Tabs defaultValue="account">
+  <TabsTrigger value="account">Account</TabsTrigger>
+  <TabsContent value="account">...</TabsContent>
+</Tabs>
+```
+
+**Correct:**
 
 ```astro
 <Tabs defaultValue="account">
   <TabsList><TabsTrigger value="account">Account</TabsTrigger></TabsList>
   <TabsContent value="account">...</TabsContent>
 </Tabs>
+```
 
+Pair `AvatarImage` with `AvatarFallback` for when the image does not load.
+
+**Incorrect:**
+
+```astro
+<Avatar>
+  <AvatarImage src="/avatar.jpg" alt="Ada Lovelace" />
+</Avatar>
+```
+
+**Correct:**
+
+```astro
 <Avatar>
   <AvatarImage src="/avatar.jpg" alt="Ada Lovelace" />
   <AvatarFallback>AL</AvatarFallback>

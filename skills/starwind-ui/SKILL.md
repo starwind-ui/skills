@@ -77,7 +77,7 @@ These rules always apply. Each group links to a file with Incorrect/Correct pair
 
 - **Set `dir` on `<html>` or a container.** Components read the `dir` attribute. They do not read
   CSS `direction`.
-- **Use logical utilities for the reading edge.** `ps-6`, not `pl-6`. Also `pe-*`, `ms-*`, `me-*`,
+- **Use logical utilities for the reading edge.** Change `pl-6` to `ps-6`. Also `pe-*`, `ms-*`, `me-*`,
   `start-*`, `end-*`, `text-start`.
 - **`side="left"` and `side="right"` stay physical.**
 - **Put `dir="ltr"` on URL and code inputs** inside RTL content.
@@ -157,9 +157,11 @@ import { Spinner } from "@/components/starwind/spinner";
 ```
 
 ```vue
-<!-- Vue: v-model for state, asChild where documented. -->
+<!-- Vue: v-model for state, asChild with a native element. -->
 <Dialog v-model:open="open">
-  <DialogTrigger asChild><Button>Edit profile</Button></DialogTrigger>
+  <DialogTrigger asChild>
+    <button type="button" :class="ButtonVariants.button({})">Edit profile</button>
+  </DialogTrigger>
 </Dialog>
 ```
 

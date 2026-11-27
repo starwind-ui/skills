@@ -33,13 +33,17 @@ Use tokens such as `bg-background`, `text-foreground`, `bg-card`, `text-card-for
 `bg-primary`, `text-primary-foreground`, `bg-muted`, `text-muted-foreground`, `border-border`,
 `border-input`, and `outline-outline`.
 
+**Incorrect:** fixed palette colors bypass the theme.
+
 ```astro
-<!-- Incorrect: fixed palette colors bypass the theme. -->
 <section class="border-gray-200 bg-white text-gray-950">
   <p class="text-slate-500">Secondary text</p>
 </section>
+```
 
-<!-- Correct: semantic utilities follow :root and .dark. -->
+**Correct:** semantic utilities follow :root and .dark.
+
+```astro
 <section class="border-border bg-background text-foreground">
   <p class="text-muted-foreground">Secondary text</p>
 </section>
@@ -49,11 +53,15 @@ Use tokens such as `bg-background`, `text-foreground`, `bg-card`, `text-card-for
 
 Use documented status variants and token pairs before raw green/red/yellow/blue utilities:
 
-```astro
-<!-- Incorrect -->
-<span class="rounded-full bg-red-100 px-2 text-red-700">Failed</span>
+**Incorrect:**
 
-<!-- Correct -->
+```astro
+<span class="rounded-full bg-red-100 px-2 text-red-700">Failed</span>
+```
+
+**Correct:**
+
+```astro
 <Badge variant="error">Failed</Badge>
 <span class="text-success">+20.1%</span>
 ```
@@ -66,11 +74,15 @@ status variant.
 
 Use the component API instead of rebuilding it at the call site:
 
-```astro
-<!-- Incorrect -->
-<Button class="border border-input bg-transparent text-foreground hover:bg-accent">Cancel</Button>
+**Incorrect:**
 
-<!-- Correct -->
+```astro
+<Button class="border border-input bg-transparent text-foreground hover:bg-accent">Cancel</Button>
+```
+
+**Correct:**
+
+```astro
 <Button variant="outline" size="sm">Cancel</Button>
 ```
 
@@ -78,11 +90,15 @@ Use `class` in Astro, Vue, and Svelte and `className` in React for layout and na
 `mx-auto`, `mt-4`, grid placement, or a deliberate one-off radius. Do not hide a new visual variant
 inside a long call-site class string.
 
-```astro
-<!-- Incorrect -->
-<Badge class="bg-green-100 text-green-700">Active</Badge>
+**Incorrect:**
 
-<!-- Correct -->
+```astro
+<Badge class="bg-green-100 text-green-700">Active</Badge>
+```
+
+**Correct:**
+
+```astro
 <Badge variant="success">Active</Badge>
 ```
 
@@ -90,14 +106,18 @@ inside a long call-site class string.
 
 Prefer the concise Tailwind form:
 
+**Incorrect:**
+
 ```astro
-<!-- Incorrect -->
 <div class="flex space-x-2">
   <Skeleton class="h-10 w-10 rounded-full" />
   <p class="overflow-hidden text-ellipsis whitespace-nowrap">Long project name</p>
 </div>
+```
 
-<!-- Correct -->
+**Correct:**
+
+```astro
 <div class="flex gap-2">
   <Skeleton class="size-10 rounded-full" />
   <p class="truncate">Long project name</p>
@@ -113,11 +133,15 @@ Prefer the concise Tailwind form:
 
 Do not scatter manual palette pairs across components when the colors represent the global theme:
 
-```astro
-<!-- Incorrect -->
-<main class="bg-white text-slate-950 dark:bg-slate-950 dark:text-slate-50">...</main>
+**Incorrect:**
 
-<!-- Correct -->
+```astro
+<main class="bg-white text-slate-950 dark:bg-slate-950 dark:text-slate-50">...</main>
+```
+
+**Correct:**
+
+```astro
 <main class="bg-background text-foreground">...</main>
 ```
 

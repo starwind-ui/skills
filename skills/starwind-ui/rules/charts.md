@@ -81,11 +81,11 @@ Keep the props of each part. Change the names:
 The config gives each series a label and a color. Use the chart tokens. Type the config with
 `satisfies ChartConfig`.
 
-**Incorrect:** raw palette colors and no type.
+**Incorrect:** a Tailwind class as the color, and no type.
 
 ```ts
 export const revenueConfig = {
-  revenue: { label: "Revenue", color: "#2563eb" },
+  revenue: { label: "Revenue", color: "bg-blue-500" },
   costs: { label: "Costs", color: "bg-red-500" },
 };
 ```
@@ -103,6 +103,8 @@ export const revenueConfig = {
 
 - `ChartContainer` writes each config color to a `--color-<key>` variable inside the chart. Use it
   in your own tooltip or legend content, for example `bg-(--color-revenue)`.
+- A config color can be any CSS color, such as hex or `oklch()`. Use the tokens so the chart
+  follows the theme.
 - Set `fill` or `stroke` on one part to give it its own color.
 - Use `theme: { light, dark }` in place of `color` for one color in each mode.
 - Change the chart palette in `--chart-1` to `--chart-5` in the active CSS file. See
