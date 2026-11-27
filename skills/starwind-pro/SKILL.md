@@ -1,6 +1,6 @@
 ---
 name: starwind-pro
-description: Discover, install, and adapt Starwind Pro blocks in Astro projects. Use to search Pro blocks, configure V3 Pro access, distinguish free and paid availability, install exact commands returned by current tools, or avoid assuming license access.
+description: Discover, install, and adapt Starwind Pro blocks (Astro components) in any Starwind project. Use to search Pro blocks, configure V3 Pro access, distinguish free and paid availability, install exact commands returned by current tools, or avoid assuming license access.
 allowed-tools: Bash(npx starwind@latest *), Bash(pnpx starwind@latest *), Bash(pnpm dlx starwind@latest *), Bash(yarn dlx starwind@latest *)
 ---
 
@@ -11,11 +11,13 @@ application and customized locally.
 
 ## Rules
 
-- Confirm an Astro target before selecting a Pro block.
+- Pro blocks are Astro components. Setup and installs run in every framework. In a React, Vue, or
+  Svelte project, tell the user, then use an Astro host or port the block.
 - Treat `starwind.config.json` as the V3 authority for framework, component destination, registry,
   Tailwind, and Pro authorization settings.
-- Initialize missing Starwind UI with `starwind init --framework astro --pro`; use
-  `starwind setup` for an existing project.
+- Initialize missing Starwind UI with `starwind init --pro` and let the CLI detect the framework.
+  Add `--framework <project framework>` only to choose a framework. Use `starwind setup` for an
+  existing project.
 - Search current MCP, CLI, or Pro metadata before naming a block.
 - Use the exact returned install command; retain declared component dependencies.
 - Preserve the block's responsive layout, container queries, motion and reduced-motion behavior,
@@ -28,7 +30,8 @@ application and customized locally.
 
 Before recommending or installing a block, inspect:
 
-1. `package.json`, lockfiles, `astro.config.*`, and the route/layout being changed.
+1. `package.json`, lockfiles, host config (`astro.config.*`, `vite.config.*`, `nuxt.config.ts`,
+   `svelte.config.js`), and the route or layout being changed.
 2. `starwind.config.json`, configured component directory, installed records, and local exports.
 3. The active Starwind CSS file from config and existing theme conventions.
 4. `.gitignore` when setup may create or update `.env.local`.
@@ -38,20 +41,17 @@ A legacy `components.json` can contain old Pro registry settings; current setup 
 
 ## Find, Install, Adapt
 
-1. For a new project, initialize with `starwind init --framework astro --pro`; for an initialized
-   Starwind project, run `starwind setup` once when Pro configuration is missing.
+1. For a new project, initialize with `starwind init --pro`; the CLI detects the framework. For an
+   initialized Starwind project, run `starwind setup` once when Pro configuration is missing.
 2. Search by intent/category/plan through current MCP `starwind_search` or
    `starwind search <query> --json`.
 3. Select a result whose plan and dependencies fit the project.
 4. Run its exact install command from the project root.
 5. Read every added block and component file.
-6. Wire it into the intended Astro route using local aliases.
+6. Wire it into an Astro route with local aliases, or port it to the project's framework.
 7. Replace placeholder content, links, data, and imagery while preserving responsive, container
    query, animation, accessibility, and theme behavior.
 8. Run relevant format, typecheck, build, and page/browser checks.
-
-The block task is complete when its source and dependencies are installed in configured locations,
-placeholder content is resolved, imports build, and access requirements are accurately reported.
 
 ## References
 

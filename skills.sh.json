@@ -1,12 +1,12 @@
 {
   "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
   "title": "Starwind UI Skills",
-  "description": "Agent skills for Starwind UI v3 in Astro and React, plus Starwind Pro blocks for Astro.",
+  "description": "Agent skills for Starwind UI v3 in Astro, React, Vue, and Svelte, plus Starwind Pro blocks for Astro.",
   "icon": "https://starwind.dev/favicon.svg",
   "groups": [
     {
       "title": "Starwind",
-      "description": "Core workflows for Starwind UI v3 styled components, Primitives, Runtime, migration, Pro blocks, and themes.",
+      "description": "Core workflows for Starwind UI v3 styled components, Charts, Primitives, Runtime, RTL, migration, Pro blocks, and themes in Astro, React, Vue, and Svelte.",
       "skillIds": ["starwind-ui", "starwind-pro"]
     }
   ]

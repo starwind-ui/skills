@@ -399,6 +399,19 @@ async function evaluate(assertion, workspace, fixtureRoot, evidenceDir) {
       const baseline = await readFile(path.join(fixtureRoot, assertion.file), "utf8");
       passed = exists && content === baseline;
     } catch {}
+  } else if (assertion.type === "contains_any") {
+    if (!Array.isArray(assertion.files)) {
+      throw new Error("contains_any assertion needs a files array: " + assertion.description);
+    }
+    for (const file of assertion.files) {
+      try {
+        const text = await readFile(path.join(assertion.evidence ? evidenceDir : workspace, file), "utf8");
+        if (assertionRegExp(assertion.pattern, assertion.flags).test(text)) {
+          passed = true;
+          break;
+        }
+      } catch {}
+    }
   } else if (assertion.type === "tree_unchanged") {
     passed = await sameTree(workspace, fixtureRoot, assertion.path);
   } else {

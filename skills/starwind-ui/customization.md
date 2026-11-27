@@ -6,9 +6,12 @@ changes belong in the active CSS file from `starwind.config.json`, not a second 
 ## Contents
 
 - token flow and semantic color variables
+- chart tokens
 - border radius
-- dark-mode initialization
+- dark-mode initialization for each host
+- RTL stylesheet
 - changing and adding semantic tokens
+- applying a brand spec
 - styled-component variants and wrappers
 - checking styled and vendored-source updates
 
@@ -20,8 +23,8 @@ changes belong in the active CSS file from `starwind.config.json`, not a second 
    `border-border`.
 4. Changing a semantic variable updates every component that consumes it.
 
-Preserve existing `@theme inline`, `:root`, `.dark`, sidebar/status tokens, radii, keyframes, and
-component-specific variables.
+Preserve existing `@theme inline`, `:root`, `.dark`, sidebar, status, and chart tokens, radii,
+keyframes, custom variants, and component-specific variables.
 
 ## Color Variables
 
@@ -48,10 +51,38 @@ background.
 | `--outline`                              | Focus outline color                               |
 | `--radius`                               | Global radius seed                                |
 | `--sidebar-*`                            | Sidebar-specific colors                           |
+| `--chart-1` to `--chart-5`               | Chart series colors                               |
 
 Default themes commonly reference Tailwind CSS 4 palette variables such as
 `var(--color-blue-700)`. Follow the active file when it uses OKLCH, hex, `rgb()`, or another valid
 CSS color format.
+
+## Chart Tokens
+
+`npx starwind@latest add chart` adds `--chart-1` to `--chart-5` to the active CSS file when they are
+missing, and maps them in `@theme inline` as `--color-chart-1` to `--color-chart-5`. The defaults
+use the blue ramp of the Starwind theme. Change them in both modes to restyle every chart:
+
+```css
+:root {
+  --chart-1: var(--color-blue-300);
+  --chart-2: var(--color-blue-500);
+  --chart-3: var(--color-blue-600);
+  --chart-4: var(--color-blue-700);
+  --chart-5: var(--color-blue-800);
+}
+
+.dark {
+  --chart-1: var(--color-blue-300);
+  --chart-2: var(--color-blue-500);
+  --chart-3: var(--color-blue-600);
+  --chart-4: var(--color-blue-700);
+  --chart-5: var(--color-blue-800);
+}
+```
+
+Chart configs refer to the tokens with `color: "var(--chart-1)"`. See
+[rules/charts.md](./rules/charts.md).
 
 ## Border Radius
 
@@ -72,8 +103,17 @@ deliberate exception.
 
 ## Dark Mode Initialization
 
-Starwind uses the `.dark` class and the shared Runtime theme controller. Render `ThemeInitScript`
-in the document head so saved/system preference is applied before paint.
+Starwind uses the `.dark` class and the shared Runtime theme controller. The theme init script
+applies the saved or system theme before paint. Each host adds it in a different place:
+
+| Host                                  | Theme init                                                                                   |
+| ------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Astro, including Astro with islands   | `ThemeInitScript` from `@starwind-ui/astro/theme` in the shared layout `<head>`              |
+| Next.js, TanStack Start, React Router | `ThemeInitScript` from `@starwind-ui/react/theme` in the document head                       |
+| Vite React, Vite Vue, Vite Svelte     | `getThemeInitScript` from `@starwind-ui/<framework>/theme` in a Vite plugin. `init` adds it. |
+| Nuxt                                  | `getThemeInitScript` from `@starwind-ui/vue/theme` in `nuxt.config.ts`, by hand              |
+| Laravel with Inertia Vue, Quasar      | A generated `public/starwind-theme.js` loaded in the document head, by hand                  |
+| SvelteKit                             | The script from `@starwind-ui/svelte/theme` in the `<head>` of `src/app.html`, by hand       |
 
 Astro:
 
@@ -101,13 +141,101 @@ export function DocumentHead() {
 }
 ```
 
-Place it through the host framework's documented server-rendered head mechanism. For programmatic
-changes, import `initThemeController` from the matching adapter package and listen for
-`starwind:theme-change`.
+Vite React, Vite Vue, and Vite Svelte (`init` adds this plugin; change the import to the project's
+framework):
+
+```ts
+import { getThemeInitScript } from "@starwind-ui/vue/theme";
+import { defineConfig, type Plugin } from "vite";
+
+function starwindThemeInitPlugin(): Plugin {
+  return {
+    name: "starwind-theme-init",
+    transformIndexHtml() {
+      return [
+        {
+          tag: "script",
+          attrs: { "data-starwind-theme-init": "" },
+          children: getThemeInitScript(),
+          injectTo: "head-prepend",
+        },
+      ];
+    },
+  };
+}
+
+export default defineConfig({
+  plugins: [
+    // Keep the existing framework and Tailwind plugins.
+    starwindThemeInitPlugin(),
+  ],
+});
+```
+
+Nuxt:
+
+```ts
+import { getThemeInitScript } from "@starwind-ui/vue/theme";
+
+export default defineNuxtConfig({
+  app: {
+    head: {
+      script: [{ innerHTML: getThemeInitScript() }],
+    },
+  },
+});
+```
+
+Laravel with Inertia Vue and Quasar: generate the script as a public asset, and run the script
+before development and production builds:
+
+```js
+// scripts/write-starwind-theme.mjs
+import { mkdir, writeFile } from "node:fs/promises";
+import { getThemeInitScript } from "@starwind-ui/vue/theme";
+
+await mkdir("public", { recursive: true });
+await writeFile("public/starwind-theme.js", getThemeInitScript());
+```
+
+- Laravel: load `<script src="{{ asset('starwind-theme.js') }}"></script>` before the application
+  scripts in the `<head>` of `resources/views/app.blade.php`. The Laravel starter already has an
+  appearance preference and a head script. If you use the Starwind controller, replace that head
+  script and connect all theme controls to the same storage key.
+- Quasar: load `<script src="/starwind-theme.js"></script>` in the `<head>` of the root
+  `index.html`, before the application entry. Under a subdirectory, prefix the URL with the
+  configured public path.
+
+Regenerate the file after you change theme options or update the adapter. Details:
+`https://starwind.dev/docs/getting-started/dark-mode.md`.
+
+For programmatic changes, import `initThemeController` from the matching adapter package and listen
+for `starwind:theme-change`. Use the `theme-toggle` component for a ready-made control.
 
 Remove a legacy inline localStorage/theme helper during V3 migration so two controllers do not race.
 The legacy `theme:change` event may exist for compatibility, but new integrations use the Runtime
 event.
+
+## RTL Stylesheet
+
+`starwind init` adds these two lines to new Tailwind stylesheets:
+
+```css
+@custom-variant rtl (&:where([dir="rtl"], [dir="rtl"] *:not([dir="rtl"] [dir="ltr"], [dir="rtl"] [dir="ltr"] *)));
+@custom-variant ltr (&:where(:not([dir="rtl"], [dir="rtl"] *:not([dir="rtl"] [dir="ltr"], [dir="rtl"] [dir="ltr"] *))));
+```
+
+They replace the Tailwind `rtl` and `ltr` variants. They also change your own `rtl:` and `ltr:`
+classes. Review any existing `rtl` or `ltr` definitions before you replace them.
+
+If `init` kept an existing stylesheet, add the lines only when:
+
+- the app puts LTR content inside an RTL page, such as a URL input with `dir="ltr"`; or
+- the app uses its own `ltr:` classes inside RTL content.
+
+A page with one direction needs no change. An RTL section inside an LTR page also works without
+them. The lines need no Vite config change, and a production build gives the same result as dev.
+One level of mixed direction works. See [rules/styling.md](./rules/styling.md#rtl).
 
 ## Change Existing Tokens
 
@@ -154,7 +282,8 @@ Register the utility and define both modes in the same active CSS file:
 }
 ```
 
-Use the registered utilities with the current framework's attribute syntax:
+Use the registered utilities with the current framework's attribute syntax. Astro, Vue, and Svelte
+use `class`. React uses `className`:
 
 ```astro
 <div class="bg-brand text-brand-foreground">Brand surface</div>
@@ -166,6 +295,21 @@ Use the registered utilities with the current framework's attribute syntax:
 
 Starwind uses Tailwind CSS 4. Add Tailwind v3 config only when the host project intentionally carries
 a separate legacy setup.
+
+## Apply A Brand Spec
+
+When the user gives a brand spec or a `DESIGN.md`:
+
+1. Read the spec's colors, radius, fonts, and control sizes before you edit.
+2. Map each brand color onto the existing variables in the active CSS file: `--primary`,
+   `--primary-foreground`, `--primary-accent`, `--secondary`, `--accent`, `--border`, `--input`,
+   `--outline`, the status tokens, `--sidebar-*`, and `--chart-1` to `--chart-5`. Set `:root` and
+   `.dark`. Do not create a second theme file.
+3. Set `--radius` from the spec. The radius scale follows it.
+4. To change control heights, edit the `size` variants of all installed controls together in their
+   `variants.ts` files. Controls of the same size then keep the same height.
+5. Check contrast for each `name` / `name-foreground` pair, in light and dark mode.
+6. Check the result in a browser in both modes.
 
 ## Customize A Styled Component
 
@@ -210,7 +354,8 @@ const { title } = Astro.props;
 </Alert>
 ```
 
-Use the same composition with typed props and `children` in React.
+Use the same composition with typed props and `children` in React, props and a default slot in
+Vue, and props and a `children` snippet in Svelte.
 
 For source edits, preserve framework adapter imports, `data-slot`, required `data-sw-*` hooks,
 public exports, native semantics, and documented Runtime state attributes.
@@ -232,6 +377,3 @@ Vendored Primitive source has the same ownership risk. Preview it through its ow
 npx starwind@latest primitives update button --dry-run
 npx starwind@latest primitives update button --diff
 ```
-
-A customization is complete when light/dark values remain readable, the theme initializes without a
-wrong-theme flash, local variants still typecheck, and Runtime behavior survives the edit.

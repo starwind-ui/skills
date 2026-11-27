@@ -16,9 +16,14 @@ current docs define the latest public contract.
 
 - Astro: `class`, `for`, inline browser scripts, and static initial-state props.
 - React: `className`, `htmlFor`, React event handlers, and controlled props/callbacks when needed.
+- Vue: `class`, `for`, `v-model` or `v-model:open`, and `update:*` events.
+- Svelte 5: `class`, `for`, `bind:` props, callback props, and the `child` snippet.
 - Import styled parts from the configured local component directory.
-- Import imperative APIs and detail types from the matching
-  `@starwind-ui/astro/<component>` or `@starwind-ui/react/<component>` package.
+- Import imperative APIs and detail types from the matching `@starwind-ui/<framework>/<component>`
+  package.
+
+See [frameworks.md](./frameworks.md) for import paths, state, and `asChild`.
+
 - Preserve `data-slot` and required `data-sw-*` hooks when editing installed internals.
 
 ## Prefer Existing Components
@@ -53,11 +58,15 @@ Use the group part when the component provides one:
 
 Avoid loose items:
 
-```astro
-<!-- Incorrect -->
-<SelectContent><SelectItem value="astro">Astro</SelectItem></SelectContent>
+**Incorrect:**
 
-<!-- Correct -->
+```astro
+<SelectContent><SelectItem value="astro">Astro</SelectItem></SelectContent>
+```
+
+**Correct:**
+
+```astro
 <SelectContent>
   <SelectGroup><SelectItem value="astro">Astro</SelectItem></SelectGroup>
 </SelectContent>
@@ -122,7 +131,7 @@ Import the imperative API from the matching adapter package, not the local style
 
 ```ts
 import { toast } from "@starwind-ui/astro/toast";
-// React file: import { toast } from "@starwind-ui/react/toast";
+// React, Vue, or Svelte file: import from "@starwind-ui/<framework>/toast".
 
 toast.success("Saved");
 ```
@@ -143,7 +152,18 @@ Confirm current `Toaster` props and toast methods from docs or package types.
 | Short helper text          | `tooltip`      |
 
 Dialog, Sheet, and Alert Dialog require their documented title part. Keep a title in the accessible
-tree even when the design does not show one:
+tree even when the design does not show one.
+
+**Incorrect:** a dialog with no title.
+
+```astro
+<DialogContent>
+  <p>Edit profile</p>
+  <!-- content -->
+</DialogContent>
+```
+
+**Correct:**
 
 ```astro
 <DialogContent>
@@ -177,20 +197,53 @@ Use Card parts rather than recreating a generic bordered panel:
 </Card>
 ```
 
-Button has no assumed `isLoading` or `isPending` prop:
+Button has no `isLoading` or `isPending` prop.
+
+**Incorrect:**
+
+```astro
+<Button isLoading>Save</Button>
+```
+
+**Correct:**
 
 ```astro
 <Button disabled aria-busy="true"><Spinner /> Saving...</Button>
 ```
 
-Keep Tabs and Avatar anatomy complete:
+Keep Tabs anatomy complete. `TabsTrigger` goes inside `TabsList`.
+
+**Incorrect:**
+
+```astro
+<Tabs defaultValue="account">
+  <TabsTrigger value="account">Account</TabsTrigger>
+  <TabsContent value="account">...</TabsContent>
+</Tabs>
+```
+
+**Correct:**
 
 ```astro
 <Tabs defaultValue="account">
   <TabsList><TabsTrigger value="account">Account</TabsTrigger></TabsList>
   <TabsContent value="account">...</TabsContent>
 </Tabs>
+```
 
+Pair `AvatarImage` with `AvatarFallback` for when the image does not load.
+
+**Incorrect:**
+
+```astro
+<Avatar>
+  <AvatarImage src="/avatar.jpg" alt="Ada Lovelace" />
+</Avatar>
+```
+
+**Correct:**
+
+```astro
 <Avatar>
   <AvatarImage src="/avatar.jpg" alt="Ada Lovelace" />
   <AvatarFallback>AL</AvatarFallback>
@@ -200,10 +253,7 @@ Keep Tabs and Avatar anatomy complete:
 Also check:
 
 - Give every icon-only button an accessible name.
-- Use `asChild` only where current styled or Primitive docs expose it.
+- Use `asChild` (Astro, React, Vue) or the Svelte `child` snippet only where current styled or
+  Primitive docs expose it.
 - Give Radio items and the Input OTP root explicit accessible names.
 - Use `InputGroupButton` for actions; `InputGroupAddon` is presentational.
-
-The composition is complete when every part is nested under its documented root/group, accessible
-names and native semantics are present, and local exports plus current docs support every prop and
-event used.

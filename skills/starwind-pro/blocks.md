@@ -8,9 +8,11 @@ Starwind Pro blocks are native Astro styled components copied into the Starwind 
 
 Use the best available source:
 
-1. Current MCP `starwind_search` with `framework: "astro"`; use `query`, `category`, `plan`,
+1. Current MCP `starwind_search` with the project's `framework`; use `query`, `category`, `plan`,
    `limit`, and `offset`, plus `cwd` when local Pro setup matters. Read matches from `proBlocks`.
    Older MCP installations may expose the narrower `search_starwind_pro_blocks` tool instead.
+   `@starwind-ui/mcp` 0.6.0 and newer return Pro results for every framework. Outside Astro, the
+   result warns that Pro blocks are Astro components.
 2. Block pages on `https://pro.starwind.dev/components/`.
 3. CLI or registry metadata when current and accessible.
 4. Pro docs for setup, theming, dark mode, animation, and troubleshooting.

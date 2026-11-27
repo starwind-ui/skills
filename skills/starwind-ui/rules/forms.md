@@ -5,7 +5,7 @@ disabled state, validity, labels, descriptions, errors, submit behavior, and res
 
 ## Contents
 
-- choosing native markup, Field, Form, and Fieldset
+- choosing native markup, Form, Field, and FieldSet
 - labels and native submission
 - initial versus controlled state
 - Input Group anatomy and alignment
@@ -13,8 +13,9 @@ disabled state, validity, labels, descriptions, errors, submit behavior, and res
 
 ## Choose Structure
 
-- Use `form`, `field`, and `fieldset` when their documented management, grouping, validation, or
-  error-summary behavior fits the task.
+- Use `form` and `field` when their documented management, grouping, validation, or
+  error-summary behavior fits the task. `FieldSet` and `FieldLegend` are parts of `field`. There is
+  no styled `fieldset` component to install.
 - Use semantic HTML plus `label` and Starwind controls for simple forms.
 - Use `checkbox-group` for related checkboxes and `radio-group` for one-of-many choices.
 - Use Select for a fixed choice list, standalone Combobox for searchable choice, and Native Select
@@ -55,11 +56,42 @@ import {
 ```
 
 `FieldLabel`, `FieldDescription`, and `FieldError` are connected through the Field contract. Keep
-`name` on Field and native constraints on `FieldControl`. Use `FieldSet` and `FieldLegend` for a
-related group; do not imitate grouping with a styled `div`.
+`name` on Field and native constraints on `FieldControl`.
 
-React uses the same documented part anatomy through `.tsx` exports. Use React attribute names and
-controlled callbacks only where the React component exposes them.
+React, Vue, and Svelte use the same part anatomy through their local exports. Use the attribute
+names and state syntax of the file's framework. See [frameworks.md](./frameworks.md).
+
+### Group related controls with FieldSet
+
+**Incorrect:** a styled `div` with a heading, or a `fieldset` component that does not exist.
+
+```astro
+---
+import { Fieldset } from "@/components/starwind/fieldset";
+---
+
+<div class="flex flex-col gap-2">
+  <h3>Notifications</h3>
+  <Switch name="email" label="Email" />
+</div>
+```
+
+**Correct:** `FieldSet` and `FieldLegend` from `field`.
+
+```astro
+---
+import { FieldGroup, FieldLegend, FieldSet } from "@/components/starwind/field";
+import { Switch } from "@/components/starwind/switch";
+---
+
+<FieldSet>
+  <FieldLegend>Notifications</FieldLegend>
+  <FieldGroup>
+    <Switch name="email" label="Email" />
+    <Switch name="sms" label="SMS" />
+  </FieldGroup>
+</FieldSet>
+```
 
 ## Labels And Native Semantics
 
@@ -79,6 +111,8 @@ React:
 <Input id="email" name="email" type="email" autoComplete="email" required />
 ```
 
+Vue and Svelte use `for` and `autocomplete`, as in Astro.
+
 Match the label target to the control ID. Keep `name` on every value that should appear in
 `FormData`. Put required, read-only, disabled, and validity state on the actual control/root
 documented to own it.
@@ -92,8 +126,10 @@ Astro markup is static after render; Runtime owns later interaction.
 - For Astro Native Select, use native `selected` option semantics.
 - Use documented command events or Runtime instances for later programmatic Astro changes.
 
-React can use documented controlled props and callbacks. Do not infer a React controlled API from an
-Astro prop or treat an Astro `checked`/`value` prop as reactive.
+React uses documented controlled props and callbacks. Vue uses `v-model:checked` on Switch and
+Checkbox and `v-model` on the Select root. Svelte uses `bind:`, for example `bind:value`. Do
+not infer a controlled API from an Astro prop or treat an Astro `checked`/`value` prop as reactive.
+Check the component docs or the installed package docs for the exact model name.
 
 ## Input Group
 
@@ -104,14 +140,32 @@ Use Input Group for prefix/suffix text, icons, buttons, or textarea addons:
   <InputGroupAddon align="inline-start">
     <InputGroupText>https://</InputGroupText>
   </InputGroupAddon>
-  <InputGroupInput id="site" name="site" placeholder="example.com" />
+  <InputGroupInput id="site" name="site" aria-label="Website" placeholder="example.com" />
   <InputGroupAddon align="inline-end">
     <InputGroupButton type="button" size="sm">Check</InputGroupButton>
   </InputGroupAddon>
 </InputGroup>
 ```
 
-- Use `InputGroupInput` or `InputGroupTextarea`, not raw Input/Textarea, inside the group.
+**Incorrect:** a raw `Input` inside the group.
+
+```astro
+<InputGroup>
+  <InputGroupAddon align="inline-start"><InputGroupText>https://</InputGroupText></InputGroupAddon>
+  <Input id="site" name="site" aria-label="Website" />
+</InputGroup>
+```
+
+**Correct:**
+
+```astro
+<InputGroup>
+  <InputGroupAddon align="inline-start"><InputGroupText>https://</InputGroupText></InputGroupAddon>
+  <InputGroupInput id="site" name="site" aria-label="Website" />
+</InputGroup>
+```
+
+- Use `InputGroupInput` or `InputGroupTextarea` inside the group.
 - Supported addon alignments are `inline-start`, `inline-end`, `block-start`, and `block-end`.
 - Use `InputGroupAddon` for presentational icons/text and `InputGroupButton` for actions.
 - Keep children in a logical reading order; the alignment variant controls visual placement.
@@ -143,6 +197,3 @@ For native/simple forms, associate the error explicitly:
 - Give each focusable Radio item and the Input OTP root an explicit accessible name.
 - Test both submit and reset; Runtime controls must produce the expected `FormData` and restore
   initial state.
-
-A form change is complete when keyboard and screen-reader names are coherent, submitted values and
-reset state are correct, and the framework's current controlled/uncontrolled contract is respected.

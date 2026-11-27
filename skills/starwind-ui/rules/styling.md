@@ -12,6 +12,7 @@ initialization.
 - global light/dark theming
 - reusable `tailwind-variants`
 - public selectors, Runtime hooks, and overlay presence
+- RTL and logical utilities
 
 ## Priority
 
@@ -32,13 +33,17 @@ Use tokens such as `bg-background`, `text-foreground`, `bg-card`, `text-card-for
 `bg-primary`, `text-primary-foreground`, `bg-muted`, `text-muted-foreground`, `border-border`,
 `border-input`, and `outline-outline`.
 
+**Incorrect:** fixed palette colors bypass the theme.
+
 ```astro
-<!-- Incorrect: fixed palette colors bypass the theme. -->
 <section class="border-gray-200 bg-white text-gray-950">
   <p class="text-slate-500">Secondary text</p>
 </section>
+```
 
-<!-- Correct: semantic utilities follow :root and .dark. -->
+**Correct:** semantic utilities follow :root and .dark.
+
+```astro
 <section class="border-border bg-background text-foreground">
   <p class="text-muted-foreground">Secondary text</p>
 </section>
@@ -48,11 +53,15 @@ Use tokens such as `bg-background`, `text-foreground`, `bg-card`, `text-card-for
 
 Use documented status variants and token pairs before raw green/red/yellow/blue utilities:
 
-```astro
-<!-- Incorrect -->
-<span class="rounded-full bg-red-100 px-2 text-red-700">Failed</span>
+**Incorrect:**
 
-<!-- Correct -->
+```astro
+<span class="rounded-full bg-red-100 px-2 text-red-700">Failed</span>
+```
+
+**Correct:**
+
+```astro
 <Badge variant="error">Failed</Badge>
 <span class="text-success">+20.1%</span>
 ```
@@ -65,23 +74,31 @@ status variant.
 
 Use the component API instead of rebuilding it at the call site:
 
-```astro
-<!-- Incorrect -->
-<Button class="border border-input bg-transparent text-foreground hover:bg-accent">Cancel</Button>
+**Incorrect:**
 
-<!-- Correct -->
+```astro
+<Button class="border border-input bg-transparent text-foreground hover:bg-accent">Cancel</Button>
+```
+
+**Correct:**
+
+```astro
 <Button variant="outline" size="sm">Cancel</Button>
 ```
 
-Use `class` in Astro and `className` in React for layout and narrow exceptions such as `max-w-md`,
+Use `class` in Astro, Vue, and Svelte and `className` in React for layout and narrow exceptions such as `max-w-md`,
 `mx-auto`, `mt-4`, grid placement, or a deliberate one-off radius. Do not hide a new visual variant
 inside a long call-site class string.
 
-```astro
-<!-- Incorrect -->
-<Badge class="bg-green-100 text-green-700">Active</Badge>
+**Incorrect:**
 
-<!-- Correct -->
+```astro
+<Badge class="bg-green-100 text-green-700">Active</Badge>
+```
+
+**Correct:**
+
+```astro
 <Badge variant="success">Active</Badge>
 ```
 
@@ -89,14 +106,18 @@ inside a long call-site class string.
 
 Prefer the concise Tailwind form:
 
+**Incorrect:**
+
 ```astro
-<!-- Incorrect -->
 <div class="flex space-x-2">
   <Skeleton class="h-10 w-10 rounded-full" />
   <p class="overflow-hidden text-ellipsis whitespace-nowrap">Long project name</p>
 </div>
+```
 
-<!-- Correct -->
+**Correct:**
+
+```astro
 <div class="flex gap-2">
   <Skeleton class="size-10 rounded-full" />
   <p class="truncate">Long project name</p>
@@ -112,11 +133,15 @@ Prefer the concise Tailwind form:
 
 Do not scatter manual palette pairs across components when the colors represent the global theme:
 
-```astro
-<!-- Incorrect -->
-<main class="bg-white text-slate-950 dark:bg-slate-950 dark:text-slate-50">...</main>
+**Incorrect:**
 
-<!-- Correct -->
+```astro
+<main class="bg-white text-slate-950 dark:bg-slate-950 dark:text-slate-50">...</main>
+```
+
+**Correct:**
+
+```astro
 <main class="bg-background text-foreground">...</main>
 ```
 
@@ -179,6 +204,82 @@ Let Dialog, Sheet, Alert Dialog, Dropdown, Context Menu, Popover, Tooltip, Hover
 content own their stacking. Inspect the installed source and local stacking context before adding a
 manual `z-*` override.
 
-A styling change is complete when it follows the local framework syntax, uses the narrowest public
-styling surface, keeps semantic light/dark behavior, and preserves every Runtime hook in edited
-source.
+## RTL
+
+Starwind components follow the HTML `dir` attribute in all four frameworks. Set `dir="rtl"` on
+`<html>` for a whole page, or on a container for one section. Children inherit it. Components read
+the `dir` attribute. They do not read the CSS `direction` property.
+
+### Use logical utilities for the reading edge
+
+**Incorrect:** physical padding and margin for the reading edge.
+
+```astro
+<section dir="rtl" class="pl-6">
+  <p class="ml-2 text-left">الإعدادات</p>
+</section>
+```
+
+**Correct:**
+
+```astro
+<section dir="rtl" class="ps-6">
+  <p class="ms-2 text-start">الإعدادات</p>
+</section>
+```
+
+Use `ps-*`, `pe-*`, `ms-*`, `me-*`, `start-*`, `end-*`, and `text-start` for spacing that follows
+the reading edge. A `px-*` override replaces `ps-*` and `pe-*` in component classes only with
+`tailwind-merge` ^3.7.0. `starwind init` and `setup` install that range. `add` and `update` raise
+it when they install a component that changed for RTL.
+
+### Keep LTR content left-to-right
+
+Put `dir="ltr"` on URL inputs, code, and other content that must stay left-to-right inside RTL.
+
+**Incorrect:**
+
+```astro
+<form dir="rtl">
+  <Input type="url" name="website" />
+</form>
+```
+
+**Correct:**
+
+```astro
+<form dir="rtl">
+  <Input type="url" name="website" dir="ltr" />
+</form>
+```
+
+### Change the direction after load
+
+After code changes `dir`, for example in a language switch, send the event on `document`. Starwind
+then updates the components on the page, open popups included.
+
+**Incorrect:** a direction change with no event.
+
+```js
+document.documentElement.dir = "rtl";
+```
+
+**Correct:**
+
+```js
+document.documentElement.dir = "rtl";
+document.dispatchEvent(new Event("starwind:direction-change"));
+```
+
+### Other rules
+
+- `side="left"` and `side="right"` stay physical sides.
+- Remove your own RTL workarounds, such as mirrored transforms on Starwind parts. The components
+  now handle direction.
+- Slider sets `inset-inline-start` on the thumb and indicator. Change CSS or scripts that set
+  `left` on these parts.
+- One level of mixed direction works: an LTR area in an RTL page, or an RTL area in an LTR page.
+  A third level is not supported.
+- An existing stylesheet needs the scoped `rtl` and `ltr` variants only for LTR content inside RTL,
+  or for your own `ltr:` classes inside RTL. See
+  [customization.md](../customization.md#rtl-stylesheet). No Vite config change is necessary.

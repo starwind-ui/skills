@@ -1,0 +1,55 @@
+{
+  "$schema": "https://starwind.dev/config-schema.v2.json",
+  "version": 2,
+  "framework": "svelte",
+  "componentDir": "src/lib/starwind",
+  "tailwind": {
+    "css": "src/lib/styles/starwind.css"
+  },
+  "registry": {
+    "source": "bundled",
+    "version": "2.2.0"
+  },
+  "components": [
+    {
+      "framework": "svelte",
+      "name": "avatar",
+      "version": "2.1.2"
+    },
+    {
+      "framework": "svelte",
+      "name": "button",
+      "version": "3.0.4"
+    },
+    {
+      "framework": "svelte",
+      "name": "dialog",
+      "version": "2.2.0"
+    },
+    {
+      "framework": "svelte",
+      "name": "field",
+      "version": "1.1.1"
+    },
+    {
+      "framework": "svelte",
+      "name": "input",
+      "version": "2.1.1"
+    },
+    {
+      "framework": "svelte",
+      "name": "label",
+      "version": "1.3.2"
+    },
+    {
+      "framework": "svelte",
+      "name": "separator",
+      "version": "1.1.2"
+    },
+    {
+      "framework": "svelte",
+      "name": "textarea",
+      "version": "1.4.2"
+    }
+  ]
+}
