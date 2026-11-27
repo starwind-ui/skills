@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DialogStatus from "@/components/DialogStatus.vue";
-import { Button } from "@/components/starwind/button";
+import { Button, ButtonVariants } from "@/components/starwind/button";
 import {
   Dialog,
   DialogClose,
@@ -16,7 +16,9 @@ import {
 <template>
   <Dialog>
     <DialogTrigger asChild>
-      <Button variant="outline">Delete account</Button>
+      <button type="button" :class="ButtonVariants.button({ variant: 'outline' })">
+        Delete account
+      </button>
     </DialogTrigger>
     <DialogStatus />
     <DialogContent>
@@ -26,7 +28,9 @@ import {
       </DialogHeader>
       <DialogFooter>
         <DialogClose asChild>
-          <Button variant="outline">Cancel</Button>
+          <button type="button" :class="ButtonVariants.button({ variant: 'outline' })">
+            Cancel
+          </button>
         </DialogClose>
         <Button variant="error">Delete</Button>
       </DialogFooter>

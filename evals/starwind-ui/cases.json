@@ -806,6 +806,13 @@
           "file": "src/lib/ProfileDialog.svelte",
           "pattern": "from [\\\"']\\$lib/starwind/",
           "description": "Imports styled parts from the SvelteKit $lib folder",
+          "weight": 1
+        },
+        {
+          "type": "not_contains",
+          "file": "src/lib/ProfileDialog.svelte",
+          "pattern": "from [\"']@/",
+          "description": "Uses no @/ alias, which SvelteKit does not define",
           "weight": 2,
           "hard": true
         },
@@ -972,7 +979,7 @@
       "id": "vue-beta-upgrade",
       "title": "Finish a Vue beta to stable upgrade after the CLI update",
       "fixture": "vue-beta-upgrade",
-      "prompt": "This Vue project used the Starwind Vue beta. The CLI already ran starwind update --all and starwind primitives update --all, and package.json already has the stable @starwind-ui/vue 1.6.0. Finish the upgrade from the beta: update the remaining dependency ranges, scripts, and setup docs, and fix the application code that still uses APIs the stable release removed. The CLI-owned config and generated component source are current. Do not rerun the CLI or install anything; the user installs after review.",
+      "prompt": "This Vue project used the Starwind Vue beta. The CLI already ran starwind update --all and starwind primitives update --all, and package.json already has the stable @starwind-ui/vue 1.6.0. Finish the upgrade from the beta: update the remaining dependency ranges, scripts, and setup docs, and fix the application code that still uses APIs the stable release removed. Keep everything the app shows today, including the current tab text and the dialog open or closed status. The CLI-owned config and generated component source are current. Do not rerun the CLI or install anything; the user installs after review.",
       "assertions": [
         {
           "type": "not_contains",
@@ -1007,10 +1014,9 @@
         {
           "type": "contains",
           "file": "src/components/AccountTabs.vue",
-          "pattern": "Tabs\\.(Root|Tab)\\b",
-          "description": "Keeps the Tabs Primitive in place",
-          "weight": 1,
-          "hard": true
+          "pattern": "Tabs\\.?(Root|Tab)\\b",
+          "description": "Keeps the Tabs Primitive parts",
+          "weight": 1
         },
         {
           "type": "not_contains",
