@@ -68,7 +68,8 @@ With `cwd`, project context:
   SvelteKit);
 - detects Astro with Vue or Svelte islands;
 - reads `framework` from `starwind.config.json` for all four frameworks; and
-- returns `packageDocs` paths when `node_modules/@starwind-ui/<pkg>/docs/llms.txt` exists.
+- returns `packageDocs` paths when `node_modules/@starwind-ui/<pkg>/docs/llms.txt` exists. The
+  lookup walks up from `cwd`, so hoisted workspaces work. The nearest package wins.
 
 Read the `packageDocs` paths before you use a Primitive or Runtime API.
 
@@ -91,8 +92,9 @@ client offers it.
 
 ### Documentation
 
-Set `surface` when `auto` could confuse a styled component with a Primitive of the same name. Prefer
-an exact `resultType: "page"`. `filtered` is a weaker aggregate excerpt.
+In `auto` mode, exact names rank before aliases, and a styled page wins over a Primitive with the
+same name. Set `surface` to get the other one. Prefer `resultType: "page"`. `filtered` is a weaker
+aggregate excerpt.
 
 Pass `cwd` so the tool can find the installed package docs:
 
@@ -102,13 +104,17 @@ Pass `cwd` so the tool can find the installed package docs:
 
 With `cwd`, a Primitive or Runtime topic, or a styled component that shares a Primitive's name,
 also returns `installedDocs`. Read the file at `installedDocs.path`. It is the version-matched page
-from the installed `@starwind-ui` package. When the website is not available, the tool returns the
-installed page.
+from the installed `@starwind-ui` package. The Runtime topics `init-starwind`, `raw-html`, and
+`theme` (with `surface: "runtime"`) map to their own files. When the website is not available, the
+result has `resultType: "installed"`, with the file path as `url` and the file contents as the
+documentation.
 
 ### Search
 
-Set `surface` and `framework` when they matter. Read `styledComponents`, `primitives`, and
-`proBlocks` separately.
+`framework` defaults to `all`. Set `surface` and `framework` when they matter. Read
+`styledComponents`, `primitives`, and `proBlocks` separately. With `cwd`, commands use the
+project's runner, and styled results add `projectImportPath`, the import path for the project's
+host. Prefer it over `publicImportPath` when it is present.
 
 ```json
 { "query": "combobox", "surface": "primitive", "framework": "svelte" }
@@ -137,8 +143,9 @@ Check success, warnings, invalid items, commands, and any deferred command befor
 
 The tool detects framework and package manager from `cwd`. `framework` overrides detection. For Vue
 and Svelte it generates `starwind init --framework vue|svelte` and reports the Vue 3.5.21+ or
-Svelte 5.29+ (below 6) requirement. It also reports Node 22.12+ and sends a detected legacy config
-to migration.
+Svelte 5.29+ (below 6) requirement. In a detected or configured Vue host, the command includes
+`--framework vue`, so the CLI can offer the Vue upgrade. It also reports Node 22.12+ and sends a
+detected legacy config to migration.
 
 ```json
 { "cwd": "/absolute/project/path", "framework": "svelte" }
@@ -158,11 +165,13 @@ Read its warnings and review list, then follow [v3-migration.md](./v3-migration.
 ## Pro Results
 
 No tool rejects or hides Pro by framework. Pro search, `pro: true` on `init` and `add`, and setup
-guidance work for every framework. Outside Astro, the result carries a warning: Pro blocks are
-Astro components, so use an Astro host or port the block. Pass that warning to the user.
+guidance work for every framework. Outside Astro, a result that returns Pro blocks carries a
+warning: Pro blocks are Astro components, so use an Astro host or port the block. Pass that warning
+to the user.
 
 Free results use `installCommand` after normal initialization. Paid results use
-`deferredInstallCommand` plus `proUpgrade`. Run the returned setup before a deferred install, and
+`deferredInstallCommand` plus `proUpgrade`. `proUpgrade.newProjectCommand` uses the project's
+framework. Run the returned setup before a deferred install, and
 only when paid access is intended. Keep `STARWIND_LICENSE_KEY` in ignored `.env.local` and out of
 prompts, logs, code, and handoff text.
 
