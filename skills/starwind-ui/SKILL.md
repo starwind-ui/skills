@@ -122,7 +122,8 @@ These rules always apply. Each group links to a file with Incorrect/Correct pair
 
 - **Use only the commands and flags in cli.md.** Starwind has no `info`, `apply`, `build`, `create`,
   or preset commands.
-- **Never fetch raw component files from GitHub.** Use `add` and `update` with preview flags.
+- **Never fetch raw component files from GitHub.** `add` installs components.
+  `update --dry-run|--diff|--view` previews changes.
 - **Read installed package docs for Primitive and Runtime APIs.**
   `node_modules/@starwind-ui/<pkg>/docs/` (1.6.0+) matches the installed version.
 
@@ -215,9 +216,6 @@ only.
 7. **Compose and check.** Use local exports and the file's framework syntax. Run the narrowest
    format, typecheck, build, test, and browser checks.
 
-The task is complete when every import resolves from the intended folder, the code matches current
-documented contracts, and the checks pass or each failure is reported.
-
 ## Updating Components
 
 `update` can replace local edits in styled source or vendored Primitive source. Never fetch raw
@@ -229,7 +227,9 @@ component files from GitHub. Use the CLI.
 4. Decide for each file:
    - No local changes: accept the update.
    - Local changes: read the local file, apply the upstream change, and keep the local change.
-5. Use `--all` or `--overwrite` only with the user's explicit approval.
+5. Use `--all` only with the user's explicit approval. `update` and `primitives update` have no
+   `--overwrite` flag. `--overwrite` belongs to `add` and `primitives add`, where it replaces existing
+   files. Use it only with the user's explicit approval.
 
 Vendored Primitives use the same flags under `starwind primitives update`.
 

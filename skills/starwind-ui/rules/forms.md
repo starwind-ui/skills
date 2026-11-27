@@ -126,8 +126,8 @@ Astro markup is static after render; Runtime owns later interaction.
 - For Astro Native Select, use native `selected` option semantics.
 - Use documented command events or Runtime instances for later programmatic Astro changes.
 
-React uses documented controlled props and callbacks. Vue uses `v-model`, for example
-`v-model:checked` or `v-model` on a Select root. Svelte uses `bind:`, for example `bind:value`. Do
+React uses documented controlled props and callbacks. Vue uses `v-model:checked` on Switch and
+Checkbox and `v-model` on the Select root. Svelte uses `bind:`, for example `bind:value`. Do
 not infer a controlled API from an Astro prop or treat an Astro `checked`/`value` prop as reactive.
 Check the component docs or the installed package docs for the exact model name.
 
@@ -140,7 +140,7 @@ Use Input Group for prefix/suffix text, icons, buttons, or textarea addons:
   <InputGroupAddon align="inline-start">
     <InputGroupText>https://</InputGroupText>
   </InputGroupAddon>
-  <InputGroupInput id="site" name="site" placeholder="example.com" />
+  <InputGroupInput id="site" name="site" aria-label="Website" placeholder="example.com" />
   <InputGroupAddon align="inline-end">
     <InputGroupButton type="button" size="sm">Check</InputGroupButton>
   </InputGroupAddon>
@@ -152,7 +152,7 @@ Use Input Group for prefix/suffix text, icons, buttons, or textarea addons:
 ```astro
 <InputGroup>
   <InputGroupAddon align="inline-start"><InputGroupText>https://</InputGroupText></InputGroupAddon>
-  <Input id="site" name="site" />
+  <Input id="site" name="site" aria-label="Website" />
 </InputGroup>
 ```
 
@@ -161,7 +161,7 @@ Use Input Group for prefix/suffix text, icons, buttons, or textarea addons:
 ```astro
 <InputGroup>
   <InputGroupAddon align="inline-start"><InputGroupText>https://</InputGroupText></InputGroupAddon>
-  <InputGroupInput id="site" name="site" />
+  <InputGroupInput id="site" name="site" aria-label="Website" />
 </InputGroup>
 ```
 

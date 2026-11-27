@@ -76,13 +76,13 @@ Read the `packageDocs` paths before you use a Primitive or Runtime API.
 
 The package registers five tools. Calls return readable JSON plus MCP `structuredContent`:
 
-| Tool               | Inputs                                                                                                            | Returns                                                                                      |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `starwind_docs`    | optional `topic`, `surface`, `full`                                                                               | component, Primitive, guide, or Runtime Markdown; filtered or full aggregate docs otherwise  |
-| `starwind_search`  | optional `query`, `cwd`, `surface`, `framework`, `category`, `plan`, `limit`, `offset`                            | separate styled, Primitive, and Pro groups plus discovery and upgrade guidance               |
-| `starwind_add`     | required `components`; optional `surface`, `framework`, `to`, `overwrite`, `init`, `pro`, `cwd`, `packageManager` | validated commands, skipped or invalid items, project context, and any deferred paid install |
-| `starwind_init`    | optional `cwd`, `packageManager`, `framework`, `pro`                                                              | init command, detected project context, requirements, warnings, and next steps               |
-| `starwind_migrate` | optional `cwd`, `packageManager`, `yes`                                                                           | applicability, migration command, project context, warnings, and post-migration review list  |
+| Tool               | Inputs                                                                                                            | Returns                                                                                                |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `starwind_docs`    | optional `topic`, `surface`, `full`, `cwd`                                                                        | component, Primitive, guide, or Runtime Markdown; `installedDocs` with `cwd`; aggregate docs otherwise |
+| `starwind_search`  | optional `query`, `cwd`, `surface`, `framework`, `category`, `plan`, `limit`, `offset`                            | separate styled, Primitive, and Pro groups plus discovery and upgrade guidance                         |
+| `starwind_add`     | required `components`; optional `surface`, `framework`, `to`, `overwrite`, `init`, `pro`, `cwd`, `packageManager` | validated commands, skipped or invalid items, project context, and any deferred paid install           |
+| `starwind_init`    | optional `cwd`, `packageManager`, `framework`, `pro`                                                              | init command, detected project context, requirements, warnings, and next steps                         |
+| `starwind_migrate` | optional `cwd`, `packageManager`, `yes`                                                                           | applicability, migration command, project context, warnings, and post-migration review list            |
 
 Older MCP installations can expose `search_starwind_pro_blocks`. Prefer `starwind_search` when the
 client offers it.
@@ -94,12 +94,16 @@ client offers it.
 Set `surface` when `auto` could confuse a styled component with a Primitive of the same name. Prefer
 an exact `resultType: "page"`. `filtered` is a weaker aggregate excerpt.
 
+Pass `cwd` so the tool can find the installed package docs:
+
 ```json
-{ "topic": "combobox", "surface": "primitive" }
+{ "topic": "combobox", "surface": "primitive", "cwd": "/absolute/project/path" }
 ```
 
-For a Primitive or Runtime topic, the result points to the installed package docs page when it
-exists. That page is the version-matched source.
+With `cwd`, a Primitive or Runtime topic, or a styled component that shares a Primitive's name,
+also returns `installedDocs`. Read the file at `installedDocs.path`. It is the version-matched page
+from the installed `@starwind-ui` package. When the website is not available, the tool returns the
+installed page.
 
 ### Search
 

@@ -91,9 +91,12 @@ Primary sources:
 
 ```vue
 <Tabs.Root default-value="account" v-slot="{ value }">
-  <Tabs.Tab value="account" v-slot="{ active }">
-    <span :class="active ? 'font-semibold' : ''">Account</span>
-  </Tabs.Tab>
+  <Tabs.List>
+    <Tabs.Tab value="account" v-slot="{ active }">
+      <span :class="active ? 'font-semibold' : ''">Account</span>
+    </Tabs.Tab>
+  </Tabs.List>
+  <Tabs.Panel value="account">Account settings</Tabs.Panel>
   <p>Current: {{ value }}</p>
 </Tabs.Root>
 ```
@@ -110,7 +113,10 @@ const tab = ref("account");
 
 <template>
   <Tabs.Root v-model="tab">
-    <Tabs.Tab value="account" class="data-[state=active]:font-semibold">Account</Tabs.Tab>
+    <Tabs.List>
+      <Tabs.Tab value="account" class="data-[state=active]:font-semibold">Account</Tabs.Tab>
+    </Tabs.List>
+    <Tabs.Panel value="account">Account settings</Tabs.Panel>
     <p>Current: {{ tab }}</p>
   </Tabs.Root>
 </template>
@@ -130,10 +136,14 @@ const tab = ref("account");
 - `useSidebarContext()` returns `null` outside a `SidebarProvider`.
 - `getAlertDialogControlRefresh` is replaced by `__useAlertDialogControl()`. Run
   `starwind update alert-dialog`. If you keep your own copies of `AlertDialogAction.svelte` and
-  `AlertDialogCancel.svelte`, call the helper once and spread the result on the button:
+  `AlertDialogCancel.svelte`, import the helper from `@starwind-ui/svelte/alert-dialog` and delete
+  the old `createAttachmentKey` block. Call the helper once and spread the result on the button.
+  Keep `data-sw-alert-dialog-close`, because the dialog uses it to find the closing button:
 
 ```svelte
 <script lang="ts">
+  import { __useAlertDialogControl } from "@starwind-ui/svelte/alert-dialog";
+
   const controlAttachment = __useAlertDialogControl();
 </script>
 
@@ -169,5 +179,3 @@ const tab = ref("account");
 - `starwind.config.json` still has `version: 2`. The upgrade does not change the config format.
 - Build, typecheck, and tests pass, or each failure existed before the upgrade.
 - Tabs, Select, Dialog, Sidebar, and Alert Dialog work in a browser.
-
-The upgrade is complete when every removed API is gone from application code and the checks pass.

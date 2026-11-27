@@ -112,6 +112,7 @@ applies the saved or system theme before paint. Each host adds it in a different
 | Next.js, TanStack Start, React Router | `ThemeInitScript` from `@starwind-ui/react/theme` in the document head                       |
 | Vite React, Vite Vue, Vite Svelte     | `getThemeInitScript` from `@starwind-ui/<framework>/theme` in a Vite plugin. `init` adds it. |
 | Nuxt                                  | `getThemeInitScript` from `@starwind-ui/vue/theme` in `nuxt.config.ts`, by hand              |
+| Laravel with Inertia Vue, Quasar      | A generated `public/starwind-theme.js` loaded in the document head, by hand                  |
 | SvelteKit                             | The script from `@starwind-ui/svelte/theme` in the `<head>` of `src/app.html`, by hand       |
 
 Astro:
@@ -145,7 +146,7 @@ framework):
 
 ```ts
 import { getThemeInitScript } from "@starwind-ui/vue/theme";
-import type { Plugin } from "vite";
+import { defineConfig, type Plugin } from "vite";
 
 function starwindThemeInitPlugin(): Plugin {
   return {
@@ -162,6 +163,13 @@ function starwindThemeInitPlugin(): Plugin {
     },
   };
 }
+
+export default defineConfig({
+  plugins: [
+    // Keep the existing framework and Tailwind plugins.
+    starwindThemeInitPlugin(),
+  ],
+});
 ```
 
 Nuxt:
@@ -177,6 +185,29 @@ export default defineNuxtConfig({
   },
 });
 ```
+
+Laravel with Inertia Vue and Quasar: generate the script as a public asset, and run the script
+before development and production builds:
+
+```js
+// scripts/write-starwind-theme.mjs
+import { mkdir, writeFile } from "node:fs/promises";
+import { getThemeInitScript } from "@starwind-ui/vue/theme";
+
+await mkdir("public", { recursive: true });
+await writeFile("public/starwind-theme.js", getThemeInitScript());
+```
+
+- Laravel: load `<script src="{{ asset('starwind-theme.js') }}"></script>` before the application
+  scripts in the `<head>` of `resources/views/app.blade.php`. The Laravel starter already has an
+  appearance preference and a head script. If you use the Starwind controller, replace that head
+  script and connect all theme controls to the same storage key.
+- Quasar: load `<script src="/starwind-theme.js"></script>` in the `<head>` of the root
+  `index.html`, before the application entry. Under a subdirectory, prefix the URL with the
+  configured public path.
+
+Regenerate the file after you change theme options or update the adapter. Details:
+`https://starwind.dev/docs/getting-started/dark-mode.md`.
 
 For programmatic changes, import `initThemeController` from the matching adapter package and listen
 for `starwind:theme-change`. Use the `theme-toggle` component for a ready-made control.

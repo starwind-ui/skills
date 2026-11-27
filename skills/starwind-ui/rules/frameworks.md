@@ -249,6 +249,7 @@ The theme init script applies the saved or system theme before paint. The theme 
 | Next.js, TanStack Start, React Router                 | Render `ThemeInitScript` from `@starwind-ui/react/theme` in the document head                                |
 | Vite React, Vite Vue, Vite Svelte                     | `getThemeInitScript` from `@starwind-ui/<framework>/theme` in a `transformIndexHtml` plugin. `init` adds it. |
 | Nuxt                                                  | Add `getThemeInitScript()` from `@starwind-ui/vue/theme` to `app.head.script` by hand                        |
+| Laravel with Inertia Vue, Quasar                      | Load a generated `public/starwind-theme.js` in the document head by hand. See customization.md               |
 | SvelteKit                                             | Add the script from `@starwind-ui/svelte/theme` to the `<head>` of `src/app.html` by hand                    |
 
 **Incorrect:** an inline `localStorage` theme helper beside the Starwind script.

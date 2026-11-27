@@ -16,9 +16,10 @@ Before setup, confirm:
 Run from the project root:
 
 ```bash
-npx starwind@latest init --framework astro --pro
+npx starwind@latest init --pro
 ```
 
+The CLI detects the framework. Add `--framework <project framework>` only to choose a framework.
 Use the package runner established by local files. Add `--defaults` only when noninteractive defaults
 are intended.
 

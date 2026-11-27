@@ -58,7 +58,8 @@ axis labels.
 
 ## From shadcn/ui
 
-Keep the props of each part. Change the names:
+Use this table to map the parts. Check each Starwind part's props before you copy prop values. For
+example, `ChartBar` has no `barSize` prop.
 
 | shadcn/ui                                                                        | Starwind                                                                         |
 | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
@@ -168,14 +169,37 @@ Set `aria-label` on `ChartContainer` to say what the chart shows.
 `ChartContainer` shows a tooltip by default. Add `ChartTooltip` only to change the content. Set
 `tooltip={false}` on `ChartContainer` to remove it.
 
-Custom tooltip content goes in the `content` prop in React, a `slot="content"` in Astro and Vue, and
-a `content` snippet in Svelte.
+Custom tooltip content goes in the `content` prop in React, `slot="content"` in Astro, a
+`#content` template in Vue, and a `content` snippet in Svelte.
 
 ```astro
 <ChartTooltip>
   <ChartTooltipContent slot="content" indicator="line" />
 </ChartTooltip>
 ```
+
+```tsx
+<ChartTooltip content={<ChartTooltipContent indicator="line" />} />
+```
+
+```vue
+<ChartTooltip>
+  <template #content>
+    <ChartTooltipContent indicator="line" />
+  </template>
+</ChartTooltip>
+```
+
+```svelte
+<ChartTooltip>
+  {#snippet content()}
+    <ChartTooltipContent indicator="line" />
+  {/snippet}
+</ChartTooltip>
+```
+
+A bar chart draws a hover band behind the focused bars. Set `cursor={false}` on `ChartTooltip` to
+remove it (`:cursor="false"` in Vue).
 
 `ChartLegend` items are buttons that hide or show a series. Control the visible series with
 `visible`, `defaultVisible`, and `onVisibleChange` in React, `v-model:visible` in Vue,
